@@ -20,6 +20,19 @@
  *
  * This contains the main function. Add further description here....
  */
+#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+
+using namespace std;
+
+void show_usage(string progname) {
+    cerr << "Usage: " + progname + " <CONTROL PORT>" << endl
+         << "    <CONTROL PORT> [0-65535]" << endl
+         << "    The port to listen for control messages on."
+         << endl;
+}
 
 /**
  * main function
@@ -30,7 +43,20 @@
  */
 int main(int argc, char **argv)
 {
-	/*Start Here*/
+    // Argument checking
+    if (argc != 2) {
+        show_usage(string(argv[0]));
+        return -1;
+    }
+
+    // Get arguments
+    string control_port(argv[1]);
+
+ 	// More argument checking
+ 	if (atoi(control_port.c_str()) > 65535 || atoi(control_port.c_str()) < 0) {
+        show_usage(string(argv[0]));
+        return -1;
+    }
 	
 	return 0;
 }
