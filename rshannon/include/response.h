@@ -6,6 +6,8 @@
 
 class Response {
   private:
+    int controller_ip;
+
     ////////////////////////////////////////////////////////////////////////////////////////////
     // CONTROLLER MESSAGE RESPONSES
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +48,14 @@ class Response {
         std::vector<uint16_t> sequence_numbers;
     };
 
-  public:
+    /**
+     * The payload for a AUTHOR (control code 0x00)
+     * message response
+     */
+    struct author_payload {
+      std::vector<char> statement;
+    };
+
     /**
      * Build a control message response.
      * 
@@ -57,10 +66,57 @@ class Response {
      * @return               a control message response
      */
     struct control_response build(uint32_t ip, uint8_t control_code, uint8_t response_code, std::vector<char> payload);
-    
-    struct control_response routing_table();
 
-    struct control_response sendfile_stats();
+  public:
+    /**
+     * Build a response to a ROUTING-TABLE controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response routing_table(bool err = false);
+
+    /**
+     * Build a response to a SENDFILE-STATS controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response sendfile_stats(bool err = false);
+
+    /**
+     * Build a response to a AUTHOR controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response author(bool err = false);
+
+    /**
+     * Build a response to a CRASH controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response crash(bool err = false);
+
+    /**
+     * Build a response to a SENDFILE controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response sendfile(bool err = false);
+
+
+    /**
+     * Set the controller IP address to be used when building
+     * message responses
+     * 
+     * @param  ip the controller IP address
+     * @return    true if updated, false otherwise
+     */
+    bool set_controller(std::string ip);
 };
 
 #endif
