@@ -1,12 +1,22 @@
-#ifndef _Response_H_
-#define _Response_H_
+#ifndef _RESPONSE_H_
+#define _RESPONSE_H_
 
 #include <stdint.h>
 #include <vector>
+#include <string>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <iostream>
+
+struct control_response;
+
+#define AUTHOR 0
+#define INIT 1
 
 class Response {
 private:
-  int controller_ip;
+  uint32_t controller_ip;
 
   ////////////////////////////////////////////////////////////////////////////////////////////
   // CONTROLLER MESSAGE RESPONSES
@@ -68,11 +78,14 @@ private:
    * @param  payload       the payload of the response
    * @return               a control message response
    */
-  struct control_response build(uint32_t ip, uint8_t control_code,
-                                uint8_t response_code,
-                                std::vector<char> payload);
+  struct control_response build(uint8_t control_code,
+                            bool err,
+                            std::vector<char> payload);
 
 public:
+  Response(std::string ip = "");
+  ~Response();
+
   /**
    * Build a response to a ROUTING-TABLE controller message
    *
