@@ -108,6 +108,37 @@ class Response {
      */
     struct control_response sendfile(bool err = false);
 
+    /**
+     * Build a response to a UPDATE controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response update(bool err = false);
+
+    /**
+     * Build a response to a PENULTIMATE-DATA-PACKET controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response penultimate_data_packet(bool err = false);
+
+    /**
+     * Build a response to a LAST-DATA-PACKET controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response last_data_packet(bool err = false);
+
+    /**
+     * Build a response to a INIT controller message
+     * 
+     * @param  err whether the response should indicated an error. optional.
+     * @return     a control message response
+     */
+    struct control_response init(bool err = false);
 
     /**
      * Set the controller IP address to be used when building
