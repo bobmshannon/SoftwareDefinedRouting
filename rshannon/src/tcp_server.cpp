@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-13 19:00:48
+* @Last Modified time: 2016-04-13 19:25:08
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -96,31 +96,52 @@ vector<char> TCPServer::read_data(int fd) {
     while(nbytes < header_byte_size) {
         int bytes_read = recv(fd, header, header_byte_size, 0);
         if(bytes_read < 0) {
-            DEBUG("error receiving message data: " << bytes_read);
+            DEBUG("error receiving message header: " << bytes_read);
             return vector<char>();
         }
         nbytes += bytes_read;
     }
+    nbytes = 0;
     DEBUG("received message header: " << string(header) + '\0');
     // Then the message payload
     int payload_len = extract_length(header);
+    if(payload_len == 0) {
+        DEBUG("no payload provided, delivering message..." << string(header) + '\0');
+        return build_message(header);
+    }
     char payload[payload_len];
     DEBUG("expecting payload of length " << payload_len << " bytes");
-    nbytes = recv(fd, payload, payload_len, 0);
-    if(nbytes <= 0) {
-        DEBUG("error reading payload");
-        return vector<char>();
+    while(nbytes < payload_len) {
+        int bytes_read = recv(fd, payload, payload_len, 0);
+        if(bytes_read < 0) {
+            DEBUG("error receiving message payload: " << bytes_read);
+            return vector<char>();
+        }
+        nbytes += bytes_read;
     }
     DEBUG("received payload");
     // Now combine both the header and payload into a single message...
-    string data = string(header) + string(payload);
-    // Return the message in vector<char> form
-    vector<char> message;
-    for(int i = 0; i < data.size(); i++) {
-        message.push_back(data[i]);
-    }
     DEBUG("delivering message");
-    return message;
+    return build_message(header, payload, payload_len);
+}
+
+vector<char> TCPServer::build_message(char header[]) {
+    vector<char> message;
+    for(int i = 0; i < header_byte_size; i++) {
+        message.push_back(header[i]);
+    }
+    return message;   
+}
+
+vector<char> TCPServer::build_message(char header[], char payload[], int payload_len) {
+    vector<char> message;
+    for(int i = 0; i < header_byte_size; i++) {
+        message.push_back(header[i]);
+    }
+    for(int i = 0; i < payload_len; i++) {
+        message.push_back(payload[i]);
+    }
+    return message;   
 }
 
 int TCPServer::new_connection_handler(int listener) {

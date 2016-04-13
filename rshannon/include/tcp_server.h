@@ -66,6 +66,8 @@ class TCPServer {
      */
     vector<char> read_data(int clientfd);
     int extract_length(char header[]);
+    vector<char> build_message(char header[], char payload[], int payload_len);
+    vector<char> build_message(char header[]);
     /**
      * Send data to the client in the form of a array of chars
      * 
