@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-11 16:59:24
+* @Last Modified time: 2016-04-12 23:22:14
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -12,34 +12,12 @@
 * sockets.
 */
 
-#include <vector>
-#include <algorithm>
-#include <iterator>
-#include <string>
-#include <iostream>
-#include <cstring>
-#include <sstream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <errno.h>
-#include <unistd.h>
-#include <stdio.h>
-
 #include "../include/tcp_server.h"
 #include "../include/error.h"
 
-using std::string;
-using std::strcpy;
-using std::istringstream;
-using std::istream_iterator;
-using std::vector;
-using std::find;
-using std::sort;
+/////////////////////////////////////////////////////////////////////////////////
+// PRIVATE
+/////////////////////////////////////////////////////////////////////////////////
 
 void* TCPServer::get_in_addr(struct sockaddr* sa) {
     if (sa->sa_family == AF_INET) {
@@ -47,14 +25,6 @@ void* TCPServer::get_in_addr(struct sockaddr* sa) {
     }
 
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
-
-TCPServer::TCPServer() { client_connections = vector<Connection>(); }
-
-TCPServer::~TCPServer() {}
-
-void TCPServer::process_data(int sockfd, string data) {
-
 }
 
 int TCPServer::init_socket(string port) {
@@ -102,20 +72,24 @@ int TCPServer::init_socket(string port) {
         return ERR_SOCKET_LISTEN;
     }
 
+    // Now listening for new connections
+    listening = true;
+
+    // Clear the master and temp sets
+    FD_ZERO(&master);
+    FD_ZERO(&read_fds);
+
+    // Add the listener ile descriptors to the master set
+    FD_SET(listener, &master);
+
+    // Keep track of the biggest file descriptor
+    fdmax = listener;
+
     return listener;
 }
 
-int TCPServer::get_connection(int fd) {
-    for (int i = 0; i < client_connections.size(); i++) {
-        if (client_connections[i].fd == fd) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-
-int TCPServer::send_to_client(int clientfd, char buf[]) {
+int TCPServer::send_to_client(int clientfd, vector<char> data) {
+    /*
     int total = 0;
     int bytesleft = MESSAGE_SIZE;
     int n;
@@ -129,7 +103,7 @@ int TCPServer::send_to_client(int clientfd, char buf[]) {
         bytesleft -= n;
     }
 
-    return n == -1 ? -1 : 0;
+    return n == -1 ? -1 : 0;*/
 }
 
 int TCPServer::new_connection_handler(int listener) {
@@ -149,37 +123,59 @@ int TCPServer::new_connection_handler(int listener) {
         return ERR_SOCKET_ACCEPT;
     }
 
-    // Create a new entry in connection tracking table
-    Connection connection = { newfd };
-    add_connection(connection);
     return newfd;
 }
 
-void TCPServer::add_connection(Connection c) {
-    client_connections.push_back(c);
+/////////////////////////////////////////////////////////////////////////////////
+// PUBLIC
+/////////////////////////////////////////////////////////////////////////////////
+TCPServer::TCPServer() {
+    listening = false;
+    fdmax = 0, listener = 0, clientfd = 0, nbytes = 0;
 }
 
-int TCPServer::launch(string port) {
-    fd_set master, read_fds;
-    int fdmax, listener, clientfd, nbytes;
-    char buf[MESSAGE_SIZE] = {'\0'};
+int TCPServer::start(string port) {
+    return init_socket(port);
+}
 
-    // Clear the master and temp sets
-    FD_ZERO(&master);
-    FD_ZERO(&read_fds);
-
-    // Initialize socket that listens for new connections
-    if ((listener = init_socket(port)) < 0) {
-        return listener;
+void TCPServer::check_for_connections() {
+    // Make sure server is listening for new connections
+    if(!listening) {
+        return;
     }
 
-    // Add the listener and STDIN file descriptors to the master set
-    FD_SET(listener, &master);
-    FD_SET(0, &master);
+    read_fds = master;
 
-    // Keep track of the biggest file descriptor
-    fdmax = listener;
+    if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+        perror("select");
+        exit(4);
+    }
 
+    if (FD_ISSET(listener, &read_fds)) {
+        // New connection received
+        if ((clientfd = new_connection_handler(listener)) == -1) {
+            // Unable to handle new connection
+        } else {
+            FD_SET(clientfd, &master); // add to master set
+            if (clientfd > fdmax) {    // keep track of the max
+                fdmax = clientfd;
+            }
+        }
+    } 
+}
+
+vector<char> TCPServer::get_message() {
+    for(int i = 0; i < fdmax; i++) {
+        if (FD_ISSET(i, &read_fds)) {
+            // message received from controller...
+        }
+    }
+    return vector<char>();
+}
+
+
+/*
+int TCPServer::launch(string port) {
     // Main loop
     while (1) {
         read_fds = master;
@@ -204,7 +200,7 @@ int TCPServer::launch(string port) {
                     }
                 } else {
                     // Data received from existing connection
-                    if ((nbytes = recv(i, buf, MESSAGE_SIZE, 0)) <= 0) {
+                    /*if ((nbytes = recv(i, buf, MESSAGE_SIZE, 0)) <= 0) {
                         if (nbytes == 0) {
                             // Connection closed by client
                         } else {
@@ -223,4 +219,4 @@ int TCPServer::launch(string port) {
     }
 
     return 0;
-}
+}*/

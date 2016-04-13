@@ -24,6 +24,7 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../include/tcp_server.h"
 
 using namespace std;
 
@@ -57,6 +58,19 @@ int main(int argc, char **argv)
         show_usage(string(argv[0]));
         return -1;
     }
-	
+
+    // Begin listening for messages from controller
+    TCPServer control_server = TCPServer();
+	int control_fd = control_server.start(control_port);
+
+    while(1) {
+        control_server.check_for_connections();
+
+        vector<char> msg = control_server.get_message();
+        if(!msg.empty()) {
+            // process the control message
+        }
+    }
+
 	return 0;
 }
