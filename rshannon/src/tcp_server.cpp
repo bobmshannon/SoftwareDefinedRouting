@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-13 00:24:04
+* @Last Modified time: 2016-04-13 00:25:27
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -138,6 +138,8 @@ TCPServer::TCPServer() {
     fdmax = 0, listener = 0, clientfd = 0, nbytes = 0;
     header_byte_size = 8, length_prefix_byte_pos = 6, num_bytes_length_prefix = 2;
 }
+
+TCPServer::~TCPServer() { }
 
 int TCPServer::start(string port) {
     return init_socket(port);
