@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-12 23:22:14
+* @Last Modified time: 2016-04-13 00:24:04
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -18,15 +18,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
 /////////////////////////////////////////////////////////////////////////////////
-
-void* TCPServer::get_in_addr(struct sockaddr* sa) {
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
-
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
-
 int TCPServer::init_socket(string port) {
     int listener;
     int yes = 1; // for setsockopt() SO_REUSEADDR, below
@@ -88,22 +79,35 @@ int TCPServer::init_socket(string port) {
     return listener;
 }
 
-int TCPServer::send_to_client(int clientfd, vector<char> data) {
-    /*
-    int total = 0;
-    int bytesleft = MESSAGE_SIZE;
-    int n;
+int TCPServer::extract_length(char header[]) {
+    /* Assumes 2 byte length field */
+    char upper = header[length_prefix_byte_pos];
+    char lower = header[length_prefix_byte_pos+1];
+    return ntohl(upper + (lower >> sizeof(char)));
+}
 
-    while (total < MESSAGE_SIZE) {
-        n = send(clientfd, buf + total, bytesleft, 0);
-        if (n == -1) {
-            break;
-        }
-        total += n;
-        bytesleft -= n;
+vector<char> TCPServer::read_data(int fd) {
+    // First read the message header
+    char header[header_byte_size];
+    int nbytes = recv(fd, header, header_byte_size, 0);
+    if(nbytes <= 0) {
+        return vector<char>();
     }
-
-    return n == -1 ? -1 : 0;*/
+    // Then the message payload
+    int payload_len = extract_length(header);
+    char payload[payload_len];
+    nbytes = recv(fd, payload, payload_len, 0);
+    if(nbytes <= 0) {
+        return vector<char>();
+    }
+    // Now combine both the header and payload into a single message...
+    string data = string(header) + string(payload);
+    // Return the message in vector<char> form
+    vector<char> message;
+    for(int i = 0; i < data.size(); i++) {
+        message.push_back(data[i]);
+    }
+    return message;
 }
 
 int TCPServer::new_connection_handler(int listener) {
@@ -132,6 +136,7 @@ int TCPServer::new_connection_handler(int listener) {
 TCPServer::TCPServer() {
     listening = false;
     fdmax = 0, listener = 0, clientfd = 0, nbytes = 0;
+    header_byte_size = 8, length_prefix_byte_pos = 6, num_bytes_length_prefix = 2;
 }
 
 int TCPServer::start(string port) {
