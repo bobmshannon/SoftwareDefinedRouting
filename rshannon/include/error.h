@@ -19,6 +19,14 @@
 #define ERR_PORT -14
 #define ERR_INVALID_SERVER -15
 
+#define DEBUG_MODE 1 // Whether debugging mode is enabled or disabled
+#define DEBUG(x)                                                               \
+  do {                                                                         \
+    if (DEBUG_MODE) {                                                          \
+      std::cerr << x << std::endl;            \
+    }                                                                          \
+  } while (0) // http://stackoverflow.com/questions/14251038/debug-macros-in-c
+
 inline std::string err_to_str(int errcode) {
     switch (errcode) {
     case ERR_INVALID_IP:

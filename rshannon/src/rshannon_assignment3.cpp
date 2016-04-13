@@ -68,7 +68,8 @@ int main(int argc, char **argv)
 
         vector<char> msg = control_server.get_message();
         if(!msg.empty()) {
-            // process the control message
+           cout << msg[0];
+           // process the control message
         }
     }
 
