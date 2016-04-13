@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-13 02:12:08
+* @Last Modified time: 2016-04-13 03:26:03
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -146,7 +146,7 @@ int TCPServer::new_connection_handler(int listener) {
 /////////////////////////////////////////////////////////////////////////////////
 TCPServer::TCPServer() {
     listening = false;
-    fdmax = 0, listener = 0, clientfd = 0;
+    fdmax = 0, listener = 0;
     header_byte_size = 8, length_prefix_byte_pos = 6, num_bytes_length_prefix = 2;
 }
 
@@ -157,6 +157,8 @@ int TCPServer::start(string port) {
 }
 
 void TCPServer::check_for_connections() {
+    int clientfd;
+
     // Make sure server is listening for new connections
     if(!listening) {
         DEBUG("not listening, can't check for connections");
@@ -165,9 +167,12 @@ void TCPServer::check_for_connections() {
 
     read_fds = master;
 
-    if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+    int num_set = select(fdmax + 1, &read_fds, NULL, 0, NULL);
+    if(num_set == 0) {
+        return;
+    } else if(num_set == -1) {
         DEBUG("select error");
-        exit(4);
+        exit(4);       
     }
 
     if (FD_ISSET(listener, &read_fds)) {
@@ -189,12 +194,16 @@ void TCPServer::check_for_connections() {
 vector<char> TCPServer::get_message() {
     read_fds = master;
 
-    if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+    int num_set = select(fdmax + 1, &read_fds, NULL, 0, NULL);
+    if(num_set == 0) {
+        DEBUG("select: no fds ready to be read");
+        return vector<char>();
+    } else if(num_set == -1) {
         DEBUG("select error");
-        exit(4);
+        exit(4);       
     }
 
-    for(int i = 0; i < fdmax; i++) {
+    for(int i = 3; i <= fdmax; i++) {
         if (FD_ISSET(i, &read_fds)) {
             return read_data(i);
         }
