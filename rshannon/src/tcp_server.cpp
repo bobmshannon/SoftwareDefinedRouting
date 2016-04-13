@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-13 03:26:03
+* @Last Modified time: 2016-04-13 19:00:48
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -85,7 +85,7 @@ int TCPServer::extract_length(char header[]) {
     /* Assumes 2 byte length field */
     char upper = header[length_prefix_byte_pos];
     char lower = header[length_prefix_byte_pos+1];
-    return ntohl(upper + (lower >> sizeof(char)));
+    return ntohl(upper + (lower >> sizeof(char)*8));
 }
 
 vector<char> TCPServer::read_data(int fd) {
@@ -101,7 +101,7 @@ vector<char> TCPServer::read_data(int fd) {
         }
         nbytes += bytes_read;
     }
-    DEBUG("received message header");
+    DEBUG("received message header: " << string(header) + '\0');
     // Then the message payload
     int payload_len = extract_length(header);
     char payload[payload_len];
@@ -210,51 +210,3 @@ vector<char> TCPServer::get_message() {
     }
     return vector<char>();
 }
-
-
-/*
-int TCPServer::launch(string port) {
-    // Main loop
-    while (1) {
-        read_fds = master;
-
-        if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
-            perror("select");
-            exit(4);
-        }
-
-        for (int i = 0; i <= fdmax; i++) {
-            // Check whether file descriptor is ready to be read
-            if (FD_ISSET(i, &read_fds)) {
-                if (i == listener) {
-                    // New connection received
-                    if ((clientfd = new_connection_handler(listener)) == -1) {
-                        // Unable to handle new connection
-                    } else {
-                        FD_SET(clientfd, &master); // add to master set
-                        if (clientfd > fdmax) {    // keep track of the max
-                            fdmax = clientfd;
-                        }
-                    }
-                } else {
-                    // Data received from existing connection
-                    /*if ((nbytes = recv(i, buf, MESSAGE_SIZE, 0)) <= 0) {
-                        if (nbytes == 0) {
-                            // Connection closed by client
-                        } else {
-                            // read() error
-                        }
-                        close(i);
-                        FD_CLR(i, &master);
-                    } else {
-                        // printf("received %i bytes from fd %i: %s", nbytes, i,
-                        //       buf);
-                        process_data(i, string(buf));
-                    }
-                }
-            }
-        }
-    }
-
-    return 0;
-}*/
