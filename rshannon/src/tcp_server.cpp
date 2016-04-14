@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-13 19:25:08
+* @Last Modified time: 2016-04-14 00:46:03
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -101,12 +101,13 @@ vector<char> TCPServer::read_data(int fd) {
         }
         nbytes += bytes_read;
     }
+    DEBUG("read " << nbytes << " bytes from fd " << fd);
     nbytes = 0;
     DEBUG("received message header: " << string(header) + '\0');
     // Then the message payload
-    int payload_len = extract_length(header);
+    uint16_t payload_len = extract_length(header);
     if(payload_len == 0) {
-        DEBUG("no payload provided, delivering message..." << string(header) + '\0');
+        DEBUG("no payload provided, delivering message...");
         return build_message(header);
     }
     char payload[payload_len];
