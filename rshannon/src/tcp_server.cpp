@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-14 01:14:06
+* @Last Modified time: 2016-04-14 12:59:29
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -14,6 +14,7 @@
 
 #include "../include/tcp_server.h"
 #include "../include/error.h"
+#include "../include/control_packet.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
@@ -83,18 +84,18 @@ int TCPServer::init_socket(string port) {
 
 int TCPServer::extract_length(char header[]) {
     /* Assumes 2 byte length field */
-    char upper = header[length_prefix_byte_pos];
-    char lower = header[length_prefix_byte_pos+1];
+    char upper = header[LENGTH_PREFIX_BYTE_POS];
+    char lower = header[LENGTH_PREFIX_BYTE_POS+NUM_BYTES_LENGTH_PREFIX-1];
     return ntohl(upper + (lower >> sizeof(char)*8));
 }
 
 vector<char> TCPServer::read_data(int fd) {
     DEBUG("new data arrived on fd: " << fd);
     // First read the message header
-    char header[header_byte_size];
+    char header[HEADER_BYTE_SIZE];
     int nbytes = 0;
-    while(nbytes < header_byte_size) {
-        int bytes_read = recv(fd, header, header_byte_size, 0);
+    while(nbytes < HEADER_BYTE_SIZE) {
+        int bytes_read = recv(fd, header, HEADER_BYTE_SIZE, 0);
         if(bytes_read < 0) {
             DEBUG("error receiving message header: " << bytes_read);
             close(fd);
@@ -140,7 +141,7 @@ vector<char> TCPServer::read_data(int fd) {
 
 vector<char> TCPServer::build_message(char header[]) {
     vector<char> message;
-    for(int i = 0; i < header_byte_size; i++) {
+    for(int i = 0; i < HEADER_BYTE_SIZE; i++) {
         message.push_back(header[i]);
     }
     return message;   
@@ -148,7 +149,7 @@ vector<char> TCPServer::build_message(char header[]) {
 
 vector<char> TCPServer::build_message(char header[], char payload[], int payload_len) {
     vector<char> message;
-    for(int i = 0; i < header_byte_size; i++) {
+    for(int i = 0; i < HEADER_BYTE_SIZE; i++) {
         message.push_back(header[i]);
     }
     for(int i = 0; i < payload_len; i++) {
@@ -181,7 +182,6 @@ int TCPServer::new_connection_handler(int listener) {
 TCPServer::TCPServer() {
     listening = false;
     fdmax = 0, listener = 0;
-    header_byte_size = 8, length_prefix_byte_pos = 6, num_bytes_length_prefix = 2;
 }
 
 TCPServer::~TCPServer() { }

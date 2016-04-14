@@ -38,7 +38,6 @@ class TCPServer {
     string listen_port;
     fd_set master, read_fds;
     int fdmax, listener;
-    int header_byte_size, length_prefix_byte_pos, num_bytes_length_prefix;
     bool listening;
     /**
      * Initialize a new socket on specified port

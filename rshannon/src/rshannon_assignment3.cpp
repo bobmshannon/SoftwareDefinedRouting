@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../include/tcp_server.h"
+#include "../include/controller.h"
 
 using namespace std;
 
@@ -59,6 +60,10 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    // Initialize core
+    Controller controller = Controller();
+
+
     // Begin listening for messages from controller
     TCPServer control_server = TCPServer();
 	int control_fd = control_server.start(control_port);
@@ -67,7 +72,9 @@ int main(int argc, char **argv)
         control_server.check_for_connections();
 
         vector<char> msg = control_server.get_message();
+        vector<char> resp = vector<char>();
         if(!msg.empty()) {
+            //resp = controller.generate_response(msg);
            //cout << msg[0];
            // process the control message
         }
