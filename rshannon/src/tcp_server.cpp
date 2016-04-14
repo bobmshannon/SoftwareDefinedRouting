@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-14 01:11:26
+* @Last Modified time: 2016-04-14 01:14:06
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -97,6 +97,7 @@ vector<char> TCPServer::read_data(int fd) {
         int bytes_read = recv(fd, header, header_byte_size, 0);
         if(bytes_read < 0) {
             DEBUG("error receiving message header: " << bytes_read);
+            close(fd);
             return vector<char>();
         }
         if(bytes_read == 0) {
@@ -121,6 +122,7 @@ vector<char> TCPServer::read_data(int fd) {
         int bytes_read = recv(fd, payload, payload_len, 0);
         if(bytes_read < 0) {
             DEBUG("error receiving message payload: " << bytes_read);
+            close(fd);
             return vector<char>();
         }
         if(bytes_read == 0) {
