@@ -35,10 +35,16 @@ using std::sort;
 
 class TCPServer {
   private:
+    struct connection {
+        int fd;
+        uint32_t ip_byte;
+        char ip[4];
+    };
     string listen_port;
     fd_set master, read_fds;
     int fdmax, listener;
     bool listening;
+    vector<struct connection> connections;
     /**
      * Initialize a new socket on specified port
      * 
@@ -67,6 +73,10 @@ class TCPServer {
     int extract_length(char header[]);
     vector<char> build_message(char header[], char payload[], int payload_len);
     vector<char> build_message(char header[]);
+
+  public:
+    TCPServer();
+    ~TCPServer();
     /**
      * Send data to the client in the form of a array of chars
      * 
@@ -76,10 +86,6 @@ class TCPServer {
      * @return          0 success, negative otherwise
      */
     int send_to_client(int clientfd, vector<char> data);
-
-  public:
-    TCPServer();
-    ~TCPServer();
     /**
      * Start listening for new connections on the specified port
      * 

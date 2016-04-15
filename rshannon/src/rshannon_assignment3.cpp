@@ -73,8 +73,13 @@ int main(int argc, char **argv)
 
         vector<char> msg = control_server.get_message();
         vector<char> resp = vector<char>();
+        /*for(int i = 0; i < 5; i++) {
+            resp.push_back('a');
+        }
+        control_server.send_to_client(4, resp);*/
         if(!msg.empty()) {
-            //resp = controller.generate_response(msg);
+            resp = controller.generate_response(msg);
+            control_server.send_to_client(4, msg);
            //cout << msg[0];
            // process the control message
         }

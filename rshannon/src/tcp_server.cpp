@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-14 12:59:29
+* @Last Modified time: 2016-04-15 02:00:46
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -160,7 +160,7 @@ vector<char> TCPServer::build_message(char header[], char payload[], int payload
 
 int TCPServer::new_connection_handler(int listener) {
     DEBUG("handling new connection...");
-    struct sockaddr_storage remoteaddr; // Client's IP address
+    struct sockaddr remoteaddr; // Client's IP address
     socklen_t addrlen;
     int newfd;
 
@@ -172,8 +172,48 @@ int TCPServer::new_connection_handler(int listener) {
         DEBUG(err_to_str(ERR_SOCKET_ACCEPT));
         return ERR_SOCKET_ACCEPT;
     }
+
+    // Get client IP in byte form
+    uint32_t ip_byte = (remoteaddr.sa_data[0] << 24) + (remoteaddr.sa_data[1] << 16) + (remoteaddr.sa_data[2] << 8) + (remoteaddr.sa_data[3]);
+
+    // Track new connection
+    struct connection connection;
+    connection.fd = newfd;
+    connection.ip[0] = remoteaddr.sa_data[0];
+    connection.ip[1] = remoteaddr.sa_data[1];
+    connection.ip[2] = remoteaddr.sa_data[2];
+    connection.ip[3] = remoteaddr.sa_data[3];
+    connection.ip_byte = ip_byte;
+
+    connections.push_back(connection);
+
     DEBUG("new fd created: " << newfd);
     return newfd;
+}
+
+int TCPServer::send_to_client(int clientfd, vector<char> msg) {
+    char buf[msg.size()];
+    int total = 0;
+    int bytesleft = msg.size();
+    int n;
+
+    for(int i = 0; i < msg.size(); i++) {
+        buf[i] = msg[i];
+    }
+
+    DEBUG("sending message to fd " << clientfd);
+
+    while (total < MESSAGE_SIZE) {
+        n = send(clientfd, buf + total, bytesleft, 0);
+        if (n == -1) {
+            DEBUG("error sending message to fd " << clientfd);
+            break;
+        }
+        total += n;
+        bytesleft -= n;
+    }
+
+    return n == -1 ? -1 : 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
