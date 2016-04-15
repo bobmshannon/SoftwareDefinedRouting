@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-15 02:00:46
+* @Last Modified time: 2016-04-15 02:03:36
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -283,4 +283,10 @@ vector<char> TCPServer::get_message() {
         }
     }
     return vector<char>();
+}
+
+void TCPServer::broadcast(vector<char> data) {
+    for(int i = 0; i < connections.size(); i++) {
+        send_to_client(connections[i].fd, data);
+    }
 }

@@ -79,7 +79,7 @@ int main(int argc, char **argv)
         control_server.send_to_client(4, resp);*/
         if(!msg.empty()) {
             resp = controller.generate_response(msg);
-            control_server.send_to_client(4, msg);
+            control_server.broadcast(msg);
            //cout << msg[0];
            // process the control message
         }

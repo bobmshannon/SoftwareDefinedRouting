@@ -82,6 +82,8 @@ private:
                             bool err,
                             std::vector<char> payload);
 
+  std::vector<char> to_vector(struct control_response);
+
 public:
   Response(std::string ip = "");
   ~Response();
@@ -108,7 +110,7 @@ public:
    * @param  err whether the response should indicated an error. optional.
    * @return     a control message response
    */
-  struct control_response author(bool err = false);
+  std::vector<char> author(bool err = false);
 
   /**
    * Build a response to a CRASH controller message

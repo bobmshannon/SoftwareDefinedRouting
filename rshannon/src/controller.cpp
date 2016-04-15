@@ -2,11 +2,12 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-15 01:37:24
+* @Last Modified time: 2016-04-15 02:06:48
 */
 
 #include "../include/controller.h"
 #include "../include/control_packet.h"
+#include "../include/response.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
@@ -23,11 +24,11 @@ Controller::~Controller() { }
 
 vector<char> Controller::generate_response(vector<char> msg) {
     uint8_t control_code = extract_control_code(msg);
-    
+    Response response;
     switch(control_code) {
         case 0x00:
             // AUTHOR
-
+            return response.author();
             break;
         case 0x01:
             // INIT
