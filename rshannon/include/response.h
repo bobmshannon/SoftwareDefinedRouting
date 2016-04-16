@@ -167,7 +167,7 @@ public:
    * @param  err whether the response should indicated an error. optional.
    * @return     a control message response
    */
-  struct control_response init(bool err = false);
+  std::vector<char> init(bool err = false);
 
   /**
    * Set the controller IP address to be used when building

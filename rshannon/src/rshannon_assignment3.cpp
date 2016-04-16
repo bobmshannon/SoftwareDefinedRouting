@@ -70,18 +70,18 @@ int main(int argc, char **argv)
 	control_server.start(control_port);
 
     while(1) {
+        // Handle any new controller connections
         uint32_t controller_ip = control_server.check_for_connections();
         controller.set_ip(controller_ip);
+
+        // Retrieve new messages from controller connections
         vector<char> msg = control_server.get_message();
-        vector<char> resp = vector<char>();
 
         if(!msg.empty()) {
-            resp = controller.generate_response(msg);
+            // Respond to controller message
+            vector<char> resp = controller.generate_response(msg);
             control_server.broadcast(resp);
-           //cout << msg[0];
-           // process the control message
         }
-
     }
 
 	return 0;

@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-16 16:51:24
+* @Last Modified time: 2016-04-16 17:19:06
 */
 
 #include "../include/controller.h"
@@ -36,6 +36,7 @@ vector<char> Controller::generate_response(vector<char> msg) {
             break;
         case 0x01:
             // INIT
+            return response.init();
             break;
         case 0x02:
             // ROUTING-TABLE
