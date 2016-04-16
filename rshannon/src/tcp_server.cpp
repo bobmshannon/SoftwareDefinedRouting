@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-15 02:03:36
+* @Last Modified time: 2016-04-16 16:15:55
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -99,11 +99,13 @@ vector<char> TCPServer::read_data(int fd) {
         if(bytes_read < 0) {
             DEBUG("error receiving message header: " << bytes_read);
             close(fd);
+            FD_CLR(fd, &master);
             return vector<char>();
         }
         if(bytes_read == 0) {
             DEBUG("client disconnected");
             close(fd);
+            FD_CLR(fd, &master);
             return vector<char>();
         }
         nbytes += bytes_read;
@@ -203,7 +205,7 @@ int TCPServer::send_to_client(int clientfd, vector<char> msg) {
 
     DEBUG("sending message to fd " << clientfd);
 
-    while (total < MESSAGE_SIZE) {
+    while (bytesleft > 0) {
         n = send(clientfd, buf + total, bytesleft, 0);
         if (n == -1) {
             DEBUG("error sending message to fd " << clientfd);
@@ -232,6 +234,7 @@ int TCPServer::start(string port) {
 
 void TCPServer::check_for_connections() {
     int clientfd;
+    struct timeval tv;
 
     // Make sure server is listening for new connections
     if(!listening) {
@@ -241,7 +244,10 @@ void TCPServer::check_for_connections() {
 
     read_fds = master;
 
-    int num_set = select(fdmax + 1, &read_fds, NULL, 0, NULL);
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    int num_set = select(fdmax + 1, &read_fds, NULL, 0, &tv);
     if(num_set == 0) {
         return;
     } else if(num_set == -1) {
@@ -266,15 +272,26 @@ void TCPServer::check_for_connections() {
 }
 
 vector<char> TCPServer::get_message() {
+    struct timeval tv;
+
     read_fds = master;
 
-    int num_set = select(fdmax + 1, &read_fds, NULL, 0, NULL);
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    int num_set = select(fdmax + 1, &read_fds, NULL, 0, &tv);
     if(num_set == 0) {
-        DEBUG("select: no fds ready to be read");
+        //DEBUG("select: no fds ready to be read");
         return vector<char>();
     } else if(num_set == -1) {
         DEBUG("select error");
         exit(4);       
+    }
+
+    if (FD_ISSET(listener, &read_fds)) {
+        // Don't read data from listener socket, only for sockets
+        // created for connected clients
+        return vector<char>();
     }
 
     for(int i = 3; i <= fdmax; i++) {

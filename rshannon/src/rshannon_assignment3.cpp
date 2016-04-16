@@ -26,7 +26,8 @@
 #include <stdlib.h>
 #include "../include/tcp_server.h"
 #include "../include/controller.h"
-
+#include "../include/error.h"
+ 
 using namespace std;
 
 void show_usage(string progname) {
@@ -69,8 +70,9 @@ int main(int argc, char **argv)
 	int control_fd = control_server.start(control_port);
 
     while(1) {
+        DEBUG("checking for connections...");
         control_server.check_for_connections();
-
+        DEBUG("getting new messages...");
         vector<char> msg = control_server.get_message();
         vector<char> resp = vector<char>();
 
