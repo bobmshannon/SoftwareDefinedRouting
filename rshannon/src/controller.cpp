@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-16 14:18:26
+* @Last Modified time: 2016-04-16 16:42:29
 */
 
 #include "../include/controller.h"
@@ -22,9 +22,13 @@ uint8_t Controller::extract_control_code(vector<char> msg) {
 Controller::Controller() { }
 Controller::~Controller() { }
 
+void Controller::set_ip(uint32_t ip) {
+    controller_ip = ip;
+}
+
 vector<char> Controller::generate_response(vector<char> msg) {
     uint8_t control_code = extract_control_code(msg);
-    Response response("1.1.1.1");
+    Response response(controller_ip);
     switch(control_code) {
         case 0x00:
             // AUTHOR

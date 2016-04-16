@@ -73,6 +73,8 @@ class TCPServer {
     int extract_length(char header[]);
     vector<char> build_message(char header[], char payload[], int payload_len);
     vector<char> build_message(char header[]);
+    uint32_t last_known_client_ip();
+    void close_connection(int fd);
 
   public:
     TCPServer();
@@ -102,7 +104,7 @@ class TCPServer {
     /**
      * Check for new connections and handle them
      */
-    void check_for_connections();
+    uint32_t check_for_connections();
     /**
      * Check for a new message and return it
      *

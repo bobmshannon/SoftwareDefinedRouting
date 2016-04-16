@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-16 14:48:21
+* @Last Modified time: 2016-04-16 16:41:26
 */
 
 #include "../include/response.h"
@@ -41,12 +41,12 @@ vector<char> Response::to_vector(struct control_response resp) {
 }
 
 
-Response::Response(std::string ip) {
+Response::Response(uint32_t ip) {
     // http://stackoverflow.com/questions/15531402/how-to-convert-ip-address-both-ipv4-and-ipv6-to-binary-in-c
-	struct sockaddr_in antelope;
+	/*struct sockaddr_in antelope;
 	inet_pton(AF_INET, ip.c_str(), &(antelope.sin_addr));
-	uint32_t address = antelope.sin_addr.s_addr;
-	controller_ip = address;
+	uint32_t address = antelope.sin_addr.s_addr;*/
+	controller_ip = ip;
 }
 
 Response::~Response() { }

@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-16 16:15:55
+* @Last Modified time: 2016-04-16 16:48:56
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -89,6 +89,17 @@ int TCPServer::extract_length(char header[]) {
     return ntohl(upper + (lower >> sizeof(char)*8));
 }
 
+void TCPServer::close_connection(int fd) {
+    for(int i = 0; i < connections.size(); i++) {
+        if(connections[i].fd == fd) {
+            close(fd);
+            FD_CLR(fd, &master);
+            connections.erase(connections.begin()+i);    
+            break;        
+        }
+    }
+}
+
 vector<char> TCPServer::read_data(int fd) {
     DEBUG("new data arrived on fd: " << fd);
     // First read the message header
@@ -96,16 +107,9 @@ vector<char> TCPServer::read_data(int fd) {
     int nbytes = 0;
     while(nbytes < HEADER_BYTE_SIZE) {
         int bytes_read = recv(fd, header, HEADER_BYTE_SIZE, 0);
-        if(bytes_read < 0) {
-            DEBUG("error receiving message header: " << bytes_read);
-            close(fd);
-            FD_CLR(fd, &master);
-            return vector<char>();
-        }
-        if(bytes_read == 0) {
+        if(bytes_read <= 0) {
             DEBUG("client disconnected");
-            close(fd);
-            FD_CLR(fd, &master);
+            close_connection(fd);
             return vector<char>();
         }
         nbytes += bytes_read;
@@ -232,14 +236,22 @@ int TCPServer::start(string port) {
     return init_socket(port);
 }
 
-void TCPServer::check_for_connections() {
+uint32_t TCPServer::last_known_client_ip() {
+    int num_conn = connections.size();
+    if(num_conn == 0) {
+        return 0;
+    }
+    return connections[num_conn-1].ip_byte;
+}
+
+uint32_t TCPServer::check_for_connections() {
     int clientfd;
     struct timeval tv;
 
     // Make sure server is listening for new connections
     if(!listening) {
         DEBUG("not listening, can't check for connections");
-        return;
+        return last_known_client_ip();
     }
 
     read_fds = master;
@@ -249,7 +261,7 @@ void TCPServer::check_for_connections() {
 
     int num_set = select(fdmax + 1, &read_fds, NULL, 0, &tv);
     if(num_set == 0) {
-        return;
+        return last_known_client_ip();
     } else if(num_set == -1) {
         DEBUG("select error");
         exit(4);       
@@ -268,7 +280,8 @@ void TCPServer::check_for_connections() {
             }
             DEBUG("client connection accepted");
         }
-    } 
+    }
+    return last_known_client_ip();
 }
 
 vector<char> TCPServer::get_message() {

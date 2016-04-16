@@ -94,7 +94,7 @@ private:
   std::vector<char> to_vector(struct control_response);
 
 public:
-  Response(std::string ip = "");
+  Response(uint32_t ip = 0);
   ~Response();
 
   /**
