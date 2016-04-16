@@ -37,8 +37,7 @@ class TCPServer {
   private:
     struct connection {
         int fd;
-        uint32_t ip_byte;
-        char ip[4];
+        uint32_t ip;
     };
     string listen_port;
     fd_set master, read_fds;

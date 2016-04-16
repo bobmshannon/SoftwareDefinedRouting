@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-16 16:48:56
+* @Last Modified time: 2016-04-16 17:00:45
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -86,7 +86,7 @@ int TCPServer::extract_length(char header[]) {
     /* Assumes 2 byte length field */
     char upper = header[LENGTH_PREFIX_BYTE_POS];
     char lower = header[LENGTH_PREFIX_BYTE_POS+NUM_BYTES_LENGTH_PREFIX-1];
-    return ntohl(upper + (lower >> sizeof(char)*8));
+    return ntohs(upper + (lower >> sizeof(char)*8));
 }
 
 void TCPServer::close_connection(int fd) {
@@ -166,7 +166,7 @@ vector<char> TCPServer::build_message(char header[], char payload[], int payload
 
 int TCPServer::new_connection_handler(int listener) {
     DEBUG("handling new connection...");
-    struct sockaddr remoteaddr; // Client's IP address
+    struct sockaddr_in remoteaddr; // Client's IP address
     socklen_t addrlen;
     int newfd;
 
@@ -179,17 +179,10 @@ int TCPServer::new_connection_handler(int listener) {
         return ERR_SOCKET_ACCEPT;
     }
 
-    // Get client IP in byte form
-    uint32_t ip_byte = (remoteaddr.sa_data[0] << 24) + (remoteaddr.sa_data[1] << 16) + (remoteaddr.sa_data[2] << 8) + (remoteaddr.sa_data[3]);
-
-    // Track new connection
+    // Track connection
     struct connection connection;
     connection.fd = newfd;
-    connection.ip[0] = remoteaddr.sa_data[0];
-    connection.ip[1] = remoteaddr.sa_data[1];
-    connection.ip[2] = remoteaddr.sa_data[2];
-    connection.ip[3] = remoteaddr.sa_data[3];
-    connection.ip_byte = ip_byte;
+    connection.ip = ntohl(remoteaddr.sin_addr.s_addr);
 
     connections.push_back(connection);
 
@@ -241,7 +234,7 @@ uint32_t TCPServer::last_known_client_ip() {
     if(num_conn == 0) {
         return 0;
     }
-    return connections[num_conn-1].ip_byte;
+    return connections[num_conn-1].ip;
 }
 
 uint32_t TCPServer::check_for_connections() {
