@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-15 02:06:48
+* @Last Modified time: 2016-04-16 14:18:26
 */
 
 #include "../include/controller.h"
@@ -24,7 +24,7 @@ Controller::~Controller() { }
 
 vector<char> Controller::generate_response(vector<char> msg) {
     uint8_t control_code = extract_control_code(msg);
-    Response response;
+    Response response("1.1.1.1");
     switch(control_code) {
         case 0x00:
             // AUTHOR

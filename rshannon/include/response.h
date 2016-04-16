@@ -34,6 +34,15 @@ private:
     std::vector<char> payload;
   };
 
+  struct control_response_header {
+    uint32_t ip;           // IP address of the controller
+    uint8_t control_code;  // The type of control message being responded to
+    uint8_t response_code; // 0x00 indicates success, any other value indicates
+                           // error
+    uint16_t
+        payload_length; // Size of the payload in bytes, excluding header fields
+  };
+
   /**
    * The payload for a ROUTING-TABLE (control code 0x02)
    * message response
