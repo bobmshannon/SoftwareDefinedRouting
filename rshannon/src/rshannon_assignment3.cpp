@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include "../include/tcp_server.h"
 #include "../include/controller.h"
+#include "../include/router.h"
+#include "../include/data.h"
 #include "../include/error.h"
 
 using namespace std;
@@ -61,28 +63,12 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    // Initialize core
+    // Initialize controller. The controller manages the input received
+    // from the control, data, and router ports and generates the appropriate
+    // actions. Note that this controller should not be confused with the controller
+    // that sends messages to the process through the control port.
     Controller controller = Controller();
-
-
-    // Begin listening for messages from controller
-    TCPServer control_server = TCPServer();
-	control_server.start(control_port);
-
-    while(1) {
-        // Handle any new controller connections
-        uint32_t controller_ip = control_server.check_for_connections();
-        controller.set_ip(controller_ip);
-
-        // Retrieve new messages from controller connections
-        vector<char> msg = control_server.get_message();
-
-        if(!msg.empty()) {
-            // Respond to controller message
-            vector<char> resp = controller.generate_response(msg);
-            control_server.broadcast(resp);
-        }
-    }
+    controller.start(control_port);
 
 	return 0;
 }

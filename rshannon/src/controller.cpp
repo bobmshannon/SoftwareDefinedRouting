@@ -2,12 +2,13 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-16 17:19:06
+* @Last Modified time: 2016-04-17 00:03:15
 */
 
 #include "../include/controller.h"
 #include "../include/control_packet.h"
 #include "../include/response.h"
+#include "../include/tcp_server.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
@@ -20,7 +21,45 @@ uint8_t Controller::extract_control_code(vector<char> msg) {
 // PUBLIC
 /////////////////////////////////////////////////////////////////////////////////
 Controller::Controller() { }
+
 Controller::~Controller() { }
+
+void Controller::start(string control_port) {
+    running = true;
+
+    // Begin listening for messages from controller
+    TCPServer control_server = TCPServer();
+    control_server.start(control_port);
+
+    // Wait for either an AUTHOR or INIT command from the 
+    // controller
+    while(1) {
+        // Handle any new controller connection
+        uint32_t controller_ip = control_server.check_for_connections();
+        set_ip(controller_ip);
+        // Retrieve controller message
+        vector<char> msg = control_server.get_message();  
+        // Nothing to do if no new messages
+        if(msg.empty()) {
+            continue;
+        }     
+        // Handle AUTHOR command
+        if(msg[CONTROL_CODE_BYTE_POS] == AUTHOR) {
+            vector<char> resp = generate_response(msg);
+            control_server.broadcast(resp);
+            continue;
+        }
+        // Handle INIT command
+        if(msg[CONTROL_CODE_BYTE_POS] == INIT) {
+            // Initialize router inside here
+            break;
+        }
+    }
+}
+
+void Controller::stop() {
+    running = false;
+}
 
 void Controller::set_ip(uint32_t ip) {
     controller_ip = ip;

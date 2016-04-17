@@ -8,11 +8,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <iostream>
+#include "../include/control_packet.h"
 
 struct control_response;
-
-#define AUTHOR 0
-#define INIT 1
 
 class Response {
 private:

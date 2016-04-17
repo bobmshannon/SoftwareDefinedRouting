@@ -7,4 +7,14 @@
 #define CONTROL_CODE_BYTE_POS 4
 #define NUM_BYTES_CONTROL_CODE 1
 
+#define AUTHOR 0x00
+#define INIT 0x01
+#define ROUTING_TABLE 0x02
+#define UPDATE 0x03
+#define CRASH 0x04
+#define SENDFILE 0x05
+#define SENDFILE_STATS 0x06
+#define LAST_DATA_PACKET 0x07
+#define PENULTIMATE_DATA_PACKET 0x08
+
 #endif
