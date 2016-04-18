@@ -1,5 +1,5 @@
-#ifndef _TCPSERVER_H_
-#define _TCPSERVER_H_
+#ifndef _UDPSERVER_H_
+#define _UDPSERVER_H_
 
 #include <string>
 #include <vector>
@@ -31,17 +31,14 @@ using std::vector;
 using std::find;
 using std::sort;
 
-class TCPServer {
+#define MAX_DATAGRAM_SIZE 65535
+
+class UDPServer {
   private:
-    struct connection {
-        int fd;
-        uint32_t ip;
-    };
     string listen_port;
     fd_set master, read_fds;
     int fdmax, listener;
     bool listening;
-    vector<struct connection> connections;
     /**
      * Initialize a new socket on specified port
      * 
@@ -49,14 +46,6 @@ class TCPServer {
      * @return      A valid file descriptor > 0, negative otherwise
      */
     int init_socket(string port);
-    /**
-     * Handle a new connection from a client by initializing a new socket
-     * 
-     * @param  listener The file descriptor corresponding to the socket
-     * listening for new connections
-     * @return          A valid file descriptor > 0, negative otherwise
-     */
-    int new_connection_handler(int listener);
     /**
      * Read incoming data from a socket. This function will read
      * a single "message" with a variable payload, by first reading 
@@ -67,24 +56,11 @@ class TCPServer {
      * @return vector<char> the data read from the socket
      */
     vector<char> read_data(int clientfd);
-    int extract_length(char header[]);
-    vector<char> build_message(char header[], char payload[], int payload_len);
-    vector<char> build_message(char header[]);
-    uint32_t last_known_client_ip();
-    void close_connection(int fd);
 
   public:
-    TCPServer();
-    ~TCPServer();
-    /**
-     * Send data to the client in the form of a array of chars
-     * 
-     * @param  str      The string to send
-     * @param  clientfd The file descriptor corresponding to the appropriate
-     * socket
-     * @return          0 success, negative otherwise
-     */
-    int send_to_client(int clientfd, vector<char> data);
+    UDPServer();
+    ~UDPServer();
+
     /**
      * Start listening for new connections on the specified port
      * 
@@ -92,16 +68,6 @@ class TCPServer {
      * @return      the file desriptor of the listening socket
      */
     int start(string port);
-    /**
-     * Broadcast data to all connected clients
-     * 
-     * @param  data the data to broadcast to all clients
-     */
-    void broadcast(vector<char> data);
-    /**
-     * Check for new connections and handle them
-     */
-    uint32_t check_for_connections();
     /**
      * Check for a new message and return it
      *
