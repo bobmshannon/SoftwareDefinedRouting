@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-18 00:04:47
+* @Last Modified time: 2016-04-19 20:38:54
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -36,15 +36,20 @@ int UDPServer::init_socket(string port) {
         return ERR_SOCKET_INIT;
     }
 
-    for (p = ai; p != NULL; p = p->ai_next) {
+    listener = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+
+    bind(listener, ai->ai_addr, ai->ai_addrlen);
+
+    /*for (p = ai; p != NULL; p = p->ai_next) {
         listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if (listener < 0) {
             continue;
         }
 
-        setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+        //setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
         if (bind(listener, p->ai_addr, p->ai_addrlen) < 0) {
+            DEBUG("could not bind UDP socket");
             close(listener);
             continue;
         }
@@ -55,15 +60,15 @@ int UDPServer::init_socket(string port) {
     if (p == NULL) {
         std::cerr << err_to_str(ERR_SOCKET_BIND);
         return ERR_SOCKET_BIND;
-    }
+    }*/
 
     freeaddrinfo(ai);
 
     // Listen for new connections on socket
-    if (listen(listener, 10) == -1) {
+    /*if (listen(listener, 10) == -1) {
         DEBUG(err_to_str(ERR_SOCKET_LISTEN));
         return ERR_SOCKET_LISTEN;
-    }
+    }*/
 
     // Now listening for new connections
     listening = true;
@@ -72,11 +77,8 @@ int UDPServer::init_socket(string port) {
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
 
-    // Add the listener ile descriptors to the master set
+    // Add the listener file descriptor to the master set
     FD_SET(listener, &master);
-
-    // Keep track of the biggest file descriptor
-    fdmax = listener;
 
     return listener;
 }
@@ -105,7 +107,7 @@ vector<char> UDPServer::read_data(int fd) {
 /////////////////////////////////////////////////////////////////////////////////
 UDPServer::UDPServer() {
     listening = false;
-    fdmax = 0, listener = 0;
+    listener = 0;
 }
 
 UDPServer::~UDPServer() { }
@@ -122,18 +124,19 @@ vector<char> UDPServer::get_message() {
     tv.tv_sec = 0;
     tv.tv_usec = 0;
 
-    int num_set = select(fdmax + 1, &read_fds, NULL, 0, &tv);
+    int num_set = select(listener + 1, &read_fds, NULL, 0, &tv);
     if(num_set == 0) {
+        //DEBUG("no fds ready to be read");
         return vector<char>();
     } else if(num_set == -1) {
         DEBUG("select error");
         exit(4);       
     }
 
-    for(int i = 3; i <= fdmax; i++) {
-        if (FD_ISSET(i, &read_fds)) {
-            return read_data(i);
-        }
+    if (FD_ISSET(listener, &read_fds)) {
+        DEBUG("fd " << listener << " ready to be read");
+        return read_data(listener);
     }
+
     return vector<char>();
 }

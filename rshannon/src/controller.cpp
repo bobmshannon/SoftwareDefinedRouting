@@ -2,13 +2,15 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-17 00:44:28
+* @Last Modified time: 2016-04-19 20:35:22
 */
 
 #include "../include/controller.h"
 #include "../include/control_packet.h"
 #include "../include/response.h"
 #include "../include/tcp_server.h"
+#include "../include/udp_server.h"
+#include "../include/error.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
@@ -26,6 +28,14 @@ Controller::~Controller() { }
 
 void Controller::start(string control_port) {
     running = true;
+
+    // Begin listening for routing updates
+    UDPServer update_server = UDPServer();
+    int fd = update_server.start("2000");
+    DEBUG(fd);
+    while(1) {
+        update_server.get_message();
+    }
 
     // Begin listening for messages from controller
     TCPServer control_server = TCPServer();

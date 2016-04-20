@@ -37,7 +37,7 @@ class UDPServer {
   private:
     string listen_port;
     fd_set master, read_fds;
-    int fdmax, listener;
+    int listener;
     bool listening;
     /**
      * Initialize a new socket on specified port
