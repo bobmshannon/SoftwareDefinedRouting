@@ -17,6 +17,15 @@ private:
 		uint32_t ip;
 	};
 
+	struct routing_table {
+		vector<struct routing_table_entry>  routes;
+	};
+
+	struct routing_table_entry {
+		uint16_t id;
+		uint16_t cost;
+	};
+
 	std::vector<router> routers;
 	uint16_t update_interval;
 	struct router this_router;
