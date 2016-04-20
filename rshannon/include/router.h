@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <vector>
 
+#define INF 65535
+
 using std::vector;
 
 class Router {
@@ -26,9 +28,16 @@ private:
 		uint16_t cost;
 	};
 
-	std::vector<router> routers;
+	vector<router> routers;
+	vector<struct routing_table_entry> routing_table;
 	uint16_t update_interval;
 	struct router this_router;
+
+	/**
+	 * Update current routing table based on known router
+	 * information.
+	 */
+	void build_routing_table();
 
 public:
 	/**
