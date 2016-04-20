@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include "../include/router.h"
+#include "../include/data.h"
 
 using std::vector;
 using std::string;
@@ -14,6 +15,7 @@ class Controller {
 private:
 	uint32_t controller_ip;
 	uint8_t extract_control_code(vector<char> msg);
+	vector<char> extract_payload(vector<char> msg);
 	bool running;
 public:
 	Controller();

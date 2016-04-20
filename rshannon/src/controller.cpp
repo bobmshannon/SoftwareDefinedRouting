@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-19 21:59:17
+* @Last Modified time: 2016-04-20 00:22:18
 */
 
 #include "../include/controller.h"
@@ -19,6 +19,14 @@ uint8_t Controller::extract_control_code(vector<char> msg) {
     uint8_t code = msg[CONTROL_CODE_BYTE_POS];
     return code;
 }
+
+vector<char> Controller::extract_payload(vector<char> msg) {
+   vector<char> payload;
+   for(int i = HEADER_BYTE_SIZE; i < msg.size(); i++) {
+        payload.push_back(msg[i]);
+   }
+   return payload;
+}
 /////////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,15 +35,19 @@ Controller::Controller() { }
 Controller::~Controller() { }
 
 void Controller::start(string control_port) {
+    Router router;
+    Data data;
+    int control_code;
+
     running = true;
 
     // Begin listening for routing updates
-    UDPServer update_server = UDPServer();
+    /*UDPServer update_server = UDPServer();
     int fd = update_server.start("4950");
     DEBUG(fd);
     while(1) {
         update_server.get_message();
-    }
+    }*/
 
     // Begin listening for messages from controller
     TCPServer control_server = TCPServer();
@@ -52,19 +64,29 @@ void Controller::start(string control_port) {
         // Nothing to do if no new messages
         if(msg.empty()) {
             continue;
-        }     
+        }
+        // Extract control code
+        control_code = extract_control_code(msg);
         // Handle AUTHOR command
-        if(msg[CONTROL_CODE_BYTE_POS] == AUTHOR) {
+        if(control_code == AUTHOR) {
             vector<char> resp = generate_response(msg);
             control_server.broadcast(resp);
             continue;
         }
         // Handle INIT command
-        if(msg[CONTROL_CODE_BYTE_POS] == INIT) {
-            // Initialize router inside here
+        if(control_code == INIT) {
+            // Initialize routing updates and data servers.
+            // TODO: data server
+            vector<char> payload = extract_payload(msg);
+            router.init(payload);
+
+            // Send response to controller
+            vector<char> resp = generate_response(msg);
+            control_server.broadcast(resp);
             break;
         }
     }
+    // At this point the router is initialized.
 }
 
 void Controller::stop() {
