@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-19 20:38:54
+* @Last Modified time: 2016-04-19 21:20:25
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -19,38 +19,30 @@
 // PRIVATE
 /////////////////////////////////////////////////////////////////////////////////
 int UDPServer::init_socket(string port) {
-    int yes = 1; // for setsockopt() SO_REUSEADDR, below
-    struct addrinfo hints, *ai, *p;
+    struct addrinfo hints, *servinfo, *p;
+    int rv;
 
-    // Set port
-    listen_port = port;
-
-    // Get us a socket and bind it
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET; // set to AF_INET to force IPv4
     hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_flags = AI_PASSIVE;
+    hints.ai_flags = AI_PASSIVE; // use my IP
 
-    if (getaddrinfo(NULL, port.c_str(), &hints, &ai) != 0) {
-        DEBUG(err_to_str(ERR_SOCKET_INIT));
-        return ERR_SOCKET_INIT;
+    if ((rv = getaddrinfo(NULL, port.c_str(), &hints, &servinfo)) != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+        return 1;
     }
 
-    listener = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-
-    bind(listener, ai->ai_addr, ai->ai_addrlen);
-
-    /*for (p = ai; p != NULL; p = p->ai_next) {
-        listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (listener < 0) {
+    // loop through all the results and bind to the first we can
+    for(p = servinfo; p != NULL; p = p->ai_next) {
+        if ((listener = socket(p->ai_family, p->ai_socktype,
+                p->ai_protocol)) == -1) {
+            perror("listener: socket");
             continue;
         }
 
-        //setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
-
-        if (bind(listener, p->ai_addr, p->ai_addrlen) < 0) {
-            DEBUG("could not bind UDP socket");
+        if (bind(listener, p->ai_addr, p->ai_addrlen) == -1) {
             close(listener);
+            perror("listener: bind");
             continue;
         }
 
@@ -58,17 +50,11 @@ int UDPServer::init_socket(string port) {
     }
 
     if (p == NULL) {
-        std::cerr << err_to_str(ERR_SOCKET_BIND);
-        return ERR_SOCKET_BIND;
-    }*/
+        DEBUG("listener: failed to bind socket");
+        return 2;
+    }
 
-    freeaddrinfo(ai);
-
-    // Listen for new connections on socket
-    /*if (listen(listener, 10) == -1) {
-        DEBUG(err_to_str(ERR_SOCKET_LISTEN));
-        return ERR_SOCKET_LISTEN;
-    }*/
+    freeaddrinfo(servinfo);
 
     // Now listening for new connections
     listening = true;

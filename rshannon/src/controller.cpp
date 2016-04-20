@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-19 20:35:22
+* @Last Modified time: 2016-04-19 21:59:17
 */
 
 #include "../include/controller.h"
@@ -31,7 +31,7 @@ void Controller::start(string control_port) {
 
     // Begin listening for routing updates
     UDPServer update_server = UDPServer();
-    int fd = update_server.start("2000");
+    int fd = update_server.start("4950");
     DEBUG(fd);
     while(1) {
         update_server.get_message();
