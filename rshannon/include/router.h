@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
-#include <sstream>
 
 #define INF 65535
 
@@ -30,10 +29,12 @@ private:
 	struct router this_router;
 
 	/**
-	 * Update current routing table based on known router
-	 * information.
+	 * Initialize routing table based on router
+	 * information received from INIT command 
+	 * sent by controller. This should be called
+	 * only once.
 	 */
-	void build_routing_table();
+	void init_routing_table();
 
 public:
 	/**

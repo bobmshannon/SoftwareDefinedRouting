@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-21 14:07:09
+* @Last Modified time: 2016-04-21 14:27:19
 */
 #include "../include/router.h"
 #include <sstream>
@@ -12,12 +12,14 @@ using std::ostringstream;
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
 /////////////////////////////////////////////////////////////////////////////////
-void Router::build_routing_table() {
+void Router::init_routing_table() {
 	for(int i = 0; i < routers.size(); i++) {
 		if(routers[i].cost == INF) { continue; }
 		struct routing_table_entry rte = {
-			routers[i].id,
-			routers[i].cost
+			routers[i].id,	// Destination router ID
+			0,				// Padding
+			routers[i].id,	// Next hop router ID
+			routers[i].cost // Cost
 		};
 		routing_table.push_back(rte);
 	}
@@ -43,7 +45,7 @@ void Router::init(vector<char> data) {
 		if(router.cost == 0) { this_router = router; }
 	}
 
-	build_routing_table();
+	init_routing_table();
 }
 
 uint16_t Router::get_id() {
