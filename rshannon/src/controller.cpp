@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-21 14:11:14
+* @Last Modified time: 2016-04-21 15:16:24
 */
 
 #include "../include/controller.h"
@@ -97,11 +97,11 @@ void Controller::set_ip(uint32_t ip) {
     controller_ip = ip;
 }
 
-void process_routing_update(vector<char> update) {
+void Controller::process_routing_update(vector<char> update) {
 
 }
 
-void process_control_msg(vector<char> msg) {
+void Controller::process_control_msg(vector<char> msg) {
 
 }
 

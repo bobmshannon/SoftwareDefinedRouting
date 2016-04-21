@@ -54,11 +54,8 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    // Get arguments
-    string control_port(argv[1]);
-
  	// More argument checking
- 	if (atoi(control_port.c_str()) > 65535 || atoi(control_port.c_str()) < 0) {
+ 	if (atoi(argv[1]) > 65535 || atoi(argv[1]) < 0) {
         show_usage(string(argv[0]));
         return -1;
     }
@@ -68,7 +65,7 @@ int main(int argc, char **argv)
     // actions. Note that this controller should not be confused with the controller
     // that sends messages to the process through the control port.
     Controller controller = Controller();
-    controller.start(control_port);
+    controller.start(string(argv[1]));
 
 	return 0;
 }

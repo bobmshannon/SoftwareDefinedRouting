@@ -2,10 +2,11 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-21 14:27:19
+* @Last Modified time: 2016-04-21 15:12:38
 */
 #include "../include/router.h"
 #include <sstream>
+#include <cstring>
 
 using std::ostringstream;
 

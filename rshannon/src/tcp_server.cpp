@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-16 17:00:45
+* @Last Modified time: 2016-04-21 16:14:58
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -85,8 +85,8 @@ int TCPServer::init_socket(string port) {
 int TCPServer::extract_length(char header[]) {
     /* Assumes 2 byte length field */
     char upper = header[LENGTH_PREFIX_BYTE_POS];
-    char lower = header[LENGTH_PREFIX_BYTE_POS+NUM_BYTES_LENGTH_PREFIX-1];
-    return ntohs(upper + (lower >> sizeof(char)*8));
+    char lower = header[LENGTH_PREFIX_BYTE_POS+1];
+    return (upper << 8) | lower;
 }
 
 void TCPServer::close_connection(int fd) {
