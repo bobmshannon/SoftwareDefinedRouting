@@ -3,10 +3,15 @@
 
 #include <stdint.h>
 #include <vector>
+#include <string>
+#include <sstream>
 
 #define INF 65535
 
+#include "../include/routing_table.h"
+
 using std::vector;
+using std::string;
 
 class Router {
   
@@ -17,15 +22,6 @@ private:
 		uint16_t data_port;
 		uint16_t cost;
 		uint32_t ip;
-	};
-
-	struct routing_table {
-		vector<struct routing_table_entry>  routes;
-	};
-
-	struct routing_table_entry {
-		uint16_t id;
-		uint16_t cost;
 	};
 
 	vector<router> routers;
@@ -48,6 +44,21 @@ public:
 	 * in the network (see defn for struct router).
 	 */
 	void init(vector<char> data);
+
+	/**
+	 * Retrieve routing table.
+	 */
+	vector<char> get_routing_table();
+
+	/**
+	 * Retrieve this router's ID
+	 */
+	uint16_t get_id();
+
+	/**
+	 * Retrieve this router's updates port.
+	 */
+	string get_router_port();
 };
 
 #endif

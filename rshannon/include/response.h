@@ -12,6 +12,8 @@
 
 struct control_response;
 
+using std::vector;
+
 class Response {
 private:
   uint32_t controller_ip;
@@ -29,7 +31,7 @@ private:
                            // error
     uint16_t
         payload_length; // Size of the payload in bytes, excluding header fields
-    std::vector<char> payload;
+    vector<char> payload;
   };
 
   struct control_response_header {
@@ -46,7 +48,7 @@ private:
    * message response
    */
   struct routing_payload {
-    std::vector<struct routing_entry> routing_entries;
+    vector<struct routing_entry> routing_entries;
   };
 
   struct routing_entry {
@@ -64,7 +66,7 @@ private:
     uint8_t transfer_id;
     uint8_t ttl;
     uint8_t padding;
-    std::vector<uint16_t> sequence_numbers;
+    vector<uint16_t> sequence_numbers;
   };
 
   /**
@@ -72,7 +74,7 @@ private:
    * message response
    */
   struct author_payload {
-    std::vector<char> statement;
+    vector<char> statement;
   };
 
   /**
@@ -87,9 +89,9 @@ private:
    */
   struct control_response build(uint8_t control_code,
                             bool err,
-                            std::vector<char> payload);
+                            vector<char> payload);
 
-  std::vector<char> to_vector(struct control_response);
+  vector<char> to_vector(struct control_response);
 
 public:
   Response(uint32_t ip = 0);
@@ -101,7 +103,7 @@ public:
    * @param  err whether the response should indicated an error. optional.
    * @return     a control message response
    */
-  struct control_response routing_table(bool err = false);
+  std::vector<char> routing_table(uint16_t this_router_id, vector<char> data, bool err = false);
 
   /**
    * Build a response to a SENDFILE-STATS controller message

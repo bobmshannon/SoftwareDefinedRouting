@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-16 17:20:09
+* @Last Modified time: 2016-04-21 13:48:07
 */
 
 #include "../include/response.h"
@@ -10,6 +10,9 @@
 
 using std::vector;
 
+/////////////////////////////////////////////////////////////////////////////////
+// PRIVATE
+/////////////////////////////////////////////////////////////////////////////////
 struct Response::control_response Response::build(uint8_t control_code,
                             bool err,
                             std::vector<char> payload) {
@@ -40,7 +43,9 @@ vector<char> Response::to_vector(struct control_response resp) {
 	return vector_resp;
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////
+// PUBLIC
+/////////////////////////////////////////////////////////////////////////////////
 Response::Response(uint32_t ip) {
     // http://stackoverflow.com/questions/15531402/how-to-convert-ip-address-both-ipv4-and-ipv6-to-binary-in-c
 	/*struct sockaddr_in antelope;
@@ -68,4 +73,19 @@ vector<char> Response::init(bool err) {
 	std::vector<char> payload;
 	struct control_response resp = build(INIT, err, payload);
 	return to_vector(resp);
+}
+
+vector<char> Response::routing_table(uint16_t this_router_id, vector<char> data, bool err) {
+	vector<char> payload;
+
+	for(int i = 0; i < data.size(); i += 8) {
+		payload.push_back(this_router_id >> 8);	// Destination router ID (upper 8 bits)
+		payload.push_back(this_router_id & 0x0F);	// Destination router (lower 8 bits)
+		payload.push_back(0);	// Padding
+		payload.push_back(0);	// Padding
+		payload.push_back(data[0]);	// Next hop router ID (upper 8 bits)
+		payload.push_back(data[1]);	// Next hop router ID (lower 8 bits)
+		payload.push_back(data[2]);	// Cost (upper 8 bits)
+		payload.push_back(data[3]);	// Cost (lower 8 bits)
+	}
 }

@@ -5,7 +5,14 @@
 #include <vector>
 #include <string>
 #include "../include/router.h"
+#include "../include/routing_table.h"
 #include "../include/data.h"
+#include "../include/controller.h"
+#include "../include/control_packet.h"
+#include "../include/response.h"
+#include "../include/tcp_server.h"
+#include "../include/udp_server.h"
+#include "../include/error.h"
 
 using std::vector;
 using std::string;
@@ -17,6 +24,11 @@ private:
 	uint8_t extract_control_code(vector<char> msg);
 	vector<char> extract_payload(vector<char> msg);
 	bool running;
+    Router router;
+    Data data;
+    UDPServer updates_server;
+    void process_routing_update(vector<char> update);
+    void process_control_msg(vector<char> msg);
 public:
 	Controller();
 	~Controller();

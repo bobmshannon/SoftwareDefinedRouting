@@ -2,15 +2,10 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-20 00:22:18
+* @Last Modified time: 2016-04-21 14:11:14
 */
 
 #include "../include/controller.h"
-#include "../include/control_packet.h"
-#include "../include/response.h"
-#include "../include/tcp_server.h"
-#include "../include/udp_server.h"
-#include "../include/error.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
@@ -35,8 +30,6 @@ Controller::Controller() { }
 Controller::~Controller() { }
 
 void Controller::start(string control_port) {
-    Router router;
-    Data data;
     int control_code;
 
     running = true;
@@ -86,7 +79,14 @@ void Controller::start(string control_port) {
             break;
         }
     }
-    // At this point the router is initialized.
+    // Begin listening for routing updates
+    updates_server.start(router.get_router_port());
+    while(1) {
+        vector<char> routing_update = updates_server.get_message();
+        vector<char> control_msg = control_server.get_message();
+        process_routing_update(routing_update);
+        process_control_msg(control_msg);
+    }
 }
 
 void Controller::stop() {
@@ -95,6 +95,14 @@ void Controller::stop() {
 
 void Controller::set_ip(uint32_t ip) {
     controller_ip = ip;
+}
+
+void process_routing_update(vector<char> update) {
+
+}
+
+void process_control_msg(vector<char> msg) {
+
 }
 
 vector<char> Controller::generate_response(vector<char> msg) {
@@ -111,6 +119,7 @@ vector<char> Controller::generate_response(vector<char> msg) {
             break;
         case 0x02:
             // ROUTING-TABLE
+            //return response.routing_table(router.get_id(), router.get_routing_table());
             break;
         case 0x03:
             // UPDATE
