@@ -2,11 +2,15 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-21 15:12:38
+* @Last Modified time: 2016-04-21 20:36:00
 */
 #include "../include/router.h"
+#include "../include/error.h"
 #include <sstream>
 #include <cstring>
+#include <iostream>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 using std::ostringstream;
 
@@ -34,16 +38,20 @@ void Router::init(vector<char> data) {
 
 	int num_routers = (data[0] << 8) | (data[1]);
 
-	for(int i = 4; i < num_routers; i += sizeof(router)) {
+	for(int i = 4; i < data.size(); i += sizeof(router)) {
 		struct router router = {
-			(data[i] << 8) | (data[i+1]),	// ID
-			(data[i+2] << 8) | (data[i+3]),	// ROUTER PORT
-			(data[i+4] << 8) | (data[i+i+5]),	// DATA PORT
-			(data[i+6] << 8) | (data[7]),	// COST
-			(data[i+8] << 24)	| (data[i+9] << 16) | (data[i+10] << 8) | (data[i+11])	// IP
+			((data[i] << 8) & 0xff00) | (data[i+1] & 0xff),	// ID
+			((data[i+2] << 8) & 0xff00) | (data[i+3] & 0xff),	// ROUTER PORT
+			((data[i+4] << 8) & 0xff00) | (data[i+5] & 0xff),	// DATA PORT
+			((data[i+6] << 8) & 0xff00) | (data[i+7] & 0xff),	// COST
+			((data[i+8] << 24) & 0xff000000) | ((data[i+9] << 16) & 0xff0000) | ((data[i+10] << 8) & 0xff00) | ((data[i+11]) & 0xff)	// IP
 		};
+
 		routers.push_back(router);
 		if(router.cost == 0) { this_router = router; }
+		char ip_str[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &router.ip, ip_str, INET_ADDRSTRLEN);
+		DEBUG("Router | ID: " << router.id << " | Router Port: " << router.router_port << " | Data Port: " << router.data_port << " | Cost: " << router.cost << " | IP: " << router.ip << " " << ip_str);
 	}
 
 	init_routing_table();
