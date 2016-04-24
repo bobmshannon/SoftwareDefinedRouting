@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-21 15:16:24
+* @Last Modified time: 2016-04-24 14:43:28
 */
 
 #include "../include/controller.h"
@@ -34,16 +34,7 @@ void Controller::start(string control_port) {
 
     running = true;
 
-    // Begin listening for routing updates
-    /*UDPServer update_server = UDPServer();
-    int fd = update_server.start("4950");
-    DEBUG(fd);
-    while(1) {
-        update_server.get_message();
-    }*/
-
     // Begin listening for messages from controller
-    TCPServer control_server = TCPServer();
     control_server.start(control_port);
 
     // Wait for either an AUTHOR or INIT command from the 
@@ -82,10 +73,11 @@ void Controller::start(string control_port) {
     // Begin listening for routing updates
     updates_server.start(router.get_router_port());
     while(1) {
-        vector<char> routing_update = updates_server.get_message();
-        vector<char> control_msg = control_server.get_message();
-        process_routing_update(routing_update);
-        process_control_msg(control_msg);
+        // Process any incoming control messages
+        process_control_msg();    
+
+        // Process any incoming routing updates
+        process_routing_update();
     }
 }
 
@@ -97,13 +89,67 @@ void Controller::set_ip(uint32_t ip) {
     controller_ip = ip;
 }
 
-void Controller::process_routing_update(vector<char> update) {
-
+void Controller::process_routing_update() {
+    vector<char> routing_update = updates_server.get_message();
 }
 
-void Controller::process_control_msg(vector<char> msg) {
+void Controller::process_control_msg() {
+    // Check for controller messages
+    uint32_t controller_ip = control_server.check_for_connections();
+    set_ip(controller_ip);
+    vector<char> control_msg = control_server.get_message(); 
 
+    // Nothing to do if no message
+    if(control_msg.empty()) {
+        return;
+    }
+
+    // Prepare a response to the control server
+    vector<char> resp = generate_response(control_msg);
+    uint8_t control_code = extract_control_code(control_msg);
+
+    // Perform some actions before sending response to control server
+    switch(control_code) {
+        case 0x00:
+            // AUTHOR
+            control_server.broadcast(resp);
+            break;
+        case 0x01:
+            // INIT
+            control_server.broadcast(resp);
+            break;
+        case 0x02:
+            // ROUTING-TABLE
+            control_server.broadcast(resp);
+            break;
+        case 0x03:
+            // UPDATE
+            control_server.broadcast(resp);
+            break;
+        case 0x04:
+            // CRASH
+            control_server.broadcast(resp);
+            break;
+        case 0x05:
+            // SENDFILE
+            control_server.broadcast(resp);
+            break;
+        case 0x06:
+            // SENDFILE-STATS
+            control_server.broadcast(resp);
+            break;
+        case 0x07:
+            // LAST-DATA-PACKET
+            control_server.broadcast(resp);
+            break;
+        case 0x08:
+            // PENULTIMATE-DATA-PACKET
+            control_server.broadcast(resp);
+            break;
+    }
 }
+
+
 
 vector<char> Controller::generate_response(vector<char> msg) {
     uint8_t control_code = extract_control_code(msg);

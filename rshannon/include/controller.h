@@ -27,8 +27,9 @@ private:
     Router router;
     Data data;
     UDPServer updates_server;
-    void process_routing_update(vector<char> update);
-    void process_control_msg(vector<char> msg);
+    TCPServer control_server;
+    void process_routing_update();
+    void process_control_msg();
 public:
 	Controller();
 	~Controller();
