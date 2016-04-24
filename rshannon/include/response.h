@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include "../include/control_packet.h"
+#include "../include/routing_table.h"
 
 struct control_response;
 
@@ -103,7 +104,7 @@ public:
    * @param  err whether the response should indicated an error. optional.
    * @return     a control message response
    */
-  std::vector<char> routing_table(uint16_t this_router_id, vector<char> data, bool err = false);
+  std::vector<char> routing_table(vector<routing_table_entry> routing_table, bool err = false);
 
   /**
    * Build a response to a SENDFILE-STATS controller message

@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-21 20:36:00
+* @Last Modified time: 2016-04-24 15:51:38
 */
 #include "../include/router.h"
 #include "../include/error.h"
@@ -19,14 +19,24 @@ using std::ostringstream;
 /////////////////////////////////////////////////////////////////////////////////
 void Router::init_routing_table() {
 	for(int i = 0; i < routers.size(); i++) {
-		if(routers[i].cost == INF) { continue; }
-		struct routing_table_entry rte = {
-			routers[i].id,	// Destination router ID
-			0,				// Padding
-			routers[i].id,	// Next hop router ID
-			routers[i].cost // Cost
-		};
-		routing_table.push_back(rte);
+
+		if(routers[i].cost == INF) {
+			struct routing_table_entry rte = {
+				routers[i].id,	// Destination router ID
+				0,				// Padding
+				INF,			// Next hop router ID
+				INF 			// Cost
+			};
+			routing_table.push_back(rte);
+		} else {
+			struct routing_table_entry rte = {
+				routers[i].id,	// Destination router ID
+				0,				// Padding
+				routers[i].id,	// Next hop router ID
+				routers[i].cost // Cost
+			};
+			routing_table.push_back(rte);
+		}
 	}
 }
 
@@ -67,7 +77,11 @@ string Router::get_router_port() {
 	return port.str();
 }
 
-vector<char> Router::get_routing_table() {
+vector<routing_table_entry> Router::get_routing_table() {
+	return routing_table;
+}
+
+vector<char> Router::get_routing_table_raw() {
 	vector<char> ret;
 
 	for(int i = 0; i < routing_table.size(); i++) {

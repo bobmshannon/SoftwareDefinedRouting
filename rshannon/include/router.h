@@ -49,7 +49,8 @@ public:
 	/**
 	 * Retrieve routing table.
 	 */
-	vector<char> get_routing_table();
+	vector<char> get_routing_table_raw();
+	vector<routing_table_entry> get_routing_table();
 
 	/**
 	 * Retrieve this router's ID

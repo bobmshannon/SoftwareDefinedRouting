@@ -2,10 +2,11 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-21 13:48:07
+* @Last Modified time: 2016-04-24 15:59:22
 */
 
 #include "../include/response.h"
+#include "../include/error.h"
 #include <cstring>
 
 using std::vector;
@@ -75,17 +76,21 @@ vector<char> Response::init(bool err) {
 	return to_vector(resp);
 }
 
-vector<char> Response::routing_table(uint16_t this_router_id, vector<char> data, bool err) {
+vector<char> Response::routing_table(vector<routing_table_entry> routing_table, bool err) {
 	vector<char> payload;
-
-	for(int i = 0; i < data.size(); i += 8) {
-		payload.push_back(this_router_id >> 8);	// Destination router ID (upper 8 bits)
-		payload.push_back(this_router_id & 0x0F);	// Destination router (lower 8 bits)
-		payload.push_back(0);	// Padding
-		payload.push_back(0);	// Padding
-		payload.push_back(data[0]);	// Next hop router ID (upper 8 bits)
-		payload.push_back(data[1]);	// Next hop router ID (lower 8 bits)
-		payload.push_back(data[2]);	// Cost (upper 8 bits)
-		payload.push_back(data[3]);	// Cost (lower 8 bits)
+	for(int i = 0; i < routing_table.size(); i++) {
+		payload.push_back( (routing_table[i].destination_id >> 8) & 0x00FF);
+		payload.push_back(routing_table[i].destination_id & 0x00FF);
+		payload.push_back(0);
+		payload.push_back(0);
+		payload.push_back( (routing_table[i].next_hop_id >> 8) & 0x00FF);
+		payload.push_back(routing_table[i].next_hop_id & 0x00FF);
+		payload.push_back( (routing_table[i].cost >> 8) & 0x00FF);
+		payload.push_back(routing_table[i].cost & 0x00FF);
+		DEBUG("destination_id: " << routing_table[i].destination_id << " next_hop_id: " << routing_table[i].next_hop_id << " cost: " << routing_table[i].cost);
 	}
+
+	struct control_response resp = build(ROUTING_TABLE, err, payload);
+
+	return to_vector(resp);
 }

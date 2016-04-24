@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-24 14:43:28
+* @Last Modified time: 2016-04-24 14:49:02
 */
 
 #include "../include/controller.h"
@@ -165,7 +165,7 @@ vector<char> Controller::generate_response(vector<char> msg) {
             break;
         case 0x02:
             // ROUTING-TABLE
-            //return response.routing_table(router.get_id(), router.get_routing_table());
+            return response.routing_table(router.get_routing_table());
             break;
         case 0x03:
             // UPDATE
