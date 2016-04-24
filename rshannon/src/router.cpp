@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-24 15:51:38
+* @Last Modified time: 2016-04-24 16:54:49
 */
 #include "../include/router.h"
 #include "../include/error.h"
@@ -79,6 +79,26 @@ string Router::get_router_port() {
 
 vector<routing_table_entry> Router::get_routing_table() {
 	return routing_table;
+}
+
+void Router::update_routing_table(vector<char> control_payload) {
+    uint16_t router_id = ((control_payload[0] << 8) & 0xFF00) | ((control_payload[1]) & 0xFF);
+    uint16_t new_cost = ((control_payload[2] << 8) & 0xFF00) | ((control_payload[3]) & 0xFF);
+
+    for(int i = 0; i < routing_table.size(); i++) {
+    	if(routing_table[i].destination_id == router_id) {
+    		routing_table[i].cost = new_cost;
+    	}
+    }
+    for(int i = 0; i < routers.size(); i++) {
+    	if(routers[i].id == router_id) {
+    		routers[i].cost = new_cost;
+    	}
+    }
+    DEBUG("routing table updated. router_id: " << router_id << " new_cost: " << new_cost);
+    for(int i = 0; i < routing_table.size(); i++) {
+		DEBUG("destination_id: " << routing_table[i].destination_id << " next_hop_id: " << routing_table[i].next_hop_id << " cost: " << routing_table[i].cost);
+    }   
 }
 
 vector<char> Router::get_routing_table_raw() {

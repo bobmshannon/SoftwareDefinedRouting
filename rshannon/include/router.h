@@ -53,6 +53,11 @@ public:
 	vector<routing_table_entry> get_routing_table();
 
 	/**
+	 * Update routing table.
+	 */
+	void update_routing_table(vector<char> control_payload);
+
+	/**
 	 * Retrieve this router's ID
 	 */
 	uint16_t get_id();

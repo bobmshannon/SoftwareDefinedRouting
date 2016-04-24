@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-24 16:26:47
+* @Last Modified time: 2016-04-24 16:57:11
 */
 
 #include "../include/controller.h"
@@ -104,6 +104,9 @@ void Controller::process_control_msg() {
         return;
     }
 
+    // Extract payload
+    vector<char> control_payload = extract_payload(control_msg);
+
     // Prepare a response to the control server
     vector<char> resp = generate_response(control_msg);
     uint8_t control_code = extract_control_code(control_msg);
@@ -124,6 +127,7 @@ void Controller::process_control_msg() {
             break;
         case 0x03:
             // UPDATE
+            router.update_routing_table(control_payload);
             control_server.broadcast(resp);
             break;
         case 0x04:
@@ -171,6 +175,7 @@ vector<char> Controller::generate_response(vector<char> msg) {
             break;
         case 0x03:
             // UPDATE
+            return response.update();
             break;
         case 0x04:
             // CRASH

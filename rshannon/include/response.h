@@ -144,7 +144,7 @@ public:
    * @param  err whether the response should indicated an error. optional.
    * @return     a control message response
    */
-  struct control_response update(bool err = false);
+  std::vector<char> update(bool err = false);
 
   /**
    * Build a response to a PENULTIMATE-DATA-PACKET controller message
