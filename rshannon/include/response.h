@@ -128,7 +128,7 @@ public:
    * @param  err whether the response should indicated an error. optional.
    * @return     a control message response
    */
-  struct control_response crash(bool err = false);
+  std::vector<char> crash(bool err = false);
 
   /**
    * Build a response to a SENDFILE controller message

@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-24 15:59:22
+* @Last Modified time: 2016-04-24 16:22:46
 */
 
 #include "../include/response.h"
@@ -73,6 +73,12 @@ vector<char> Response::author(bool err) {
 vector<char> Response::init(bool err) {
 	std::vector<char> payload;
 	struct control_response resp = build(INIT, err, payload);
+	return to_vector(resp);
+}
+
+vector<char> Response::crash(bool err) {
+	std::vector<char> payload;
+	struct control_response resp = build(CRASH, err, payload);
 	return to_vector(resp);
 }
 

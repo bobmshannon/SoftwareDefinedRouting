@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-24 14:49:02
+* @Last Modified time: 2016-04-24 16:26:47
 */
 
 #include "../include/controller.h"
@@ -129,6 +129,8 @@ void Controller::process_control_msg() {
         case 0x04:
             // CRASH
             control_server.broadcast(resp);
+            DEBUG("simulating router crash...exiting");
+            exit(0);
             break;
         case 0x05:
             // SENDFILE
@@ -172,6 +174,7 @@ vector<char> Controller::generate_response(vector<char> msg) {
             break;
         case 0x04:
             // CRASH
+            return response.crash();
             break;
         case 0x05:
             // SENDFILE
