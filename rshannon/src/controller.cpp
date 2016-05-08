@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-08 01:48:58
+* @Last Modified time: 2016-05-08 01:57:47
 */
 
 #include "../include/controller.h"
@@ -113,13 +113,11 @@ void Controller::process_routing_update() {
 
     struct routing_update_pkt update_pkt;
 
-    uint32_t ip = (routing_update[0] << 24) & 0xFF000000 | (routing_update[1] << 16) & 0xFFFF0000 | (routing_update[2] <<  8) & 0xFFFFFF00 | (routing_update[3]);
+    memcpy(&update_pkt, &routing_update, sizeof(routing_update));
 
-    struct in_addr in;
-    in.s_addr = ip;
-    char *ip_cstr = inet_ntoa(in);
-
-    DEBUG("Received routing update from: " << ip_cstr << " | " << ip);
+    DEBUG("Received" << update_pkt.num_updates << " routing updates");
+    DEBUG(update_pkt.source_ip);
+    DEBUG(update_pkt.source_port);
 }
 
 void Controller::process_control_msg() {
