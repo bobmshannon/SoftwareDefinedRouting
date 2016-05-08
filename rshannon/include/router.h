@@ -14,32 +14,32 @@ using std::vector;
 using std::string;
 using std::pair;
 
+struct router {
+	uint16_t id;
+	uint16_t router_port;
+	uint16_t data_port;
+	uint16_t cost;
+	uint32_t ip;
+};
+
+struct routing_update {
+	uint32_t ip;
+	uint16_t port;
+	uint16_t padding;
+	uint16_t id;
+	uint16_t cost;
+};
+
+struct routing_update_pkt {
+	uint16_t num_updates;
+	uint16_t source_port;
+	uint32_t source_ip;
+	vector<struct routing_update> updates;
+};
+	
 class Router {
   
 private:
-	struct router {
-		uint16_t id;
-		uint16_t router_port;
-		uint16_t data_port;
-		uint16_t cost;
-		uint32_t ip;
-	};
-
-	struct routing_update {
-		uint32_t ip;
-		uint16_t port;
-		uint16_t padding;
-		uint16_t id;
-		uint16_t cost;
-	};
-
-	struct routing_update_pkt {
-		uint16_t num_updates;
-		uint16_t source_port;
-		uint32_t source_ip;
-		vector<struct routing_update> updates;
-	};
-
 	vector<router> routers;
 	vector<struct routing_table_entry> routing_table;
 	uint16_t update_interval;
