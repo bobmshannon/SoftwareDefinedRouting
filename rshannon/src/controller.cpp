@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-08 01:46:45
+* @Last Modified time: 2016-05-08 01:48:58
 */
 
 #include "../include/controller.h"
@@ -119,7 +119,7 @@ void Controller::process_routing_update() {
     in.s_addr = ip;
     char *ip_cstr = inet_ntoa(in);
 
-    DEBUG("Received routing update from: " << ip_cstr);
+    DEBUG("Received routing update from: " << ip_cstr << " | " << ip);
 }
 
 void Controller::process_control_msg() {
