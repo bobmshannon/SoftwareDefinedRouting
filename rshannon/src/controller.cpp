@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-08 02:03:22
+* @Last Modified time: 2016-05-08 02:06:20
 */
 
 #include "../include/controller.h"
@@ -114,10 +114,8 @@ void Controller::process_routing_update() {
     struct routing_update_pkt update_pkt;
 
     DEBUG("Received routing updates");
-    DEBUG(routing_update[0]);
-    DEBUG(routing_update[1]);
-    DEBUG(routing_update[2]);
-    DEBUG(routing_update[3]);
+    uint16_t num_updates = ((routing_update[0] << 8) & 0xff00) | (routing_update[1] & 0xff);
+    DEBUG(num_updates);
 }
 
 void Controller::process_control_msg() {
