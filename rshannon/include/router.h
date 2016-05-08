@@ -11,6 +11,7 @@
 
 using std::vector;
 using std::string;
+using std::pair;
 
 class Router {
   
@@ -21,6 +22,21 @@ private:
 		uint16_t data_port;
 		uint16_t cost;
 		uint32_t ip;
+	};
+
+	struct routing_update {
+		uint32_t ip;
+		uint16_t port;
+		uint16_t padding;
+		uint16_t id;
+		uint16_t cost;
+	};
+
+	struct routing_update_pkt {
+		uint16_t num_updates;
+		uint16_t source_port;
+		uint32_t source_ip;
+		vector<struct routing_update> updates;
 	};
 
 	vector<router> routers;
@@ -35,6 +51,28 @@ private:
 	 * only once.
 	 */
 	void init_routing_table();
+
+	/**
+	 * Convert a router ID to its corresponding IP
+	 * 
+	 * @return an IP address
+	 */
+	uint32_t id_to_ip(uint16_t id);
+
+	/**
+	 * Convert a router ID to its corresponding router port
+	 * 
+	 * @return a port
+	 */
+	uint16_t id_to_router_port(uint16_t id);
+
+
+	/**
+	 * Convert a routing update packet to vector<char> format
+	 *
+	 * @return a routing update packet
+	 */
+	vector<char> to_vector(struct routing_update_pkt pkt);
 
 public:
 	/**
@@ -66,6 +104,11 @@ public:
 	 * Retrieve this router's updates port.
 	 */
 	string get_router_port();
+
+	/**
+	 * Generate a routing update packet
+	 */
+	vector<char> get_routing_update();
 };
 
 #endif

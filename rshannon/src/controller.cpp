@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-24 16:57:11
+* @Last Modified time: 2016-05-05 23:21:10
 */
 
 #include "../include/controller.h"
@@ -91,6 +91,9 @@ void Controller::set_ip(uint32_t ip) {
 
 void Controller::process_routing_update() {
     vector<char> routing_update = updates_server.get_message();
+    if(routing_update.empty()) {
+        return;
+    }
 }
 
 void Controller::process_control_msg() {

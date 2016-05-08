@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-04-24 16:54:49
+* @Last Modified time: 2016-05-07 21:28:14
 */
 #include "../include/router.h"
 #include "../include/error.h"
@@ -38,6 +38,28 @@ void Router::init_routing_table() {
 			routing_table.push_back(rte);
 		}
 	}
+}
+
+uint32_t Router::id_to_ip(uint16_t id) {
+	for(int i = 0; i < routers.size(); i++) {
+		if(routers[i].id == id) { return routers[i].ip; }
+	}
+}
+
+uint16_t Router::id_to_router_port(uint16_t id) {
+	for(int i = 0; i < routers.size(); i++) {
+		if(routers[i].id == id) { return routers[i].router_port; }
+	}
+}
+
+vector<char> Router::to_vector(struct routing_update_pkt pkt) {
+	char buf[sizeof(pkt)];
+	vector<char> vector_pkt;
+	memcpy(buf, &pkt, sizeof(pkt));
+	for(int i = 0; i < sizeof(pkt); i++) {
+		vector_pkt.push_back(buf[i]);
+	}
+	return vector_pkt;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -114,4 +136,23 @@ vector<char> Router::get_routing_table_raw() {
 	}
 
 	return ret;
+}
+
+vector<char> Router::get_routing_update() {
+	struct routing_update_pkt update_pkt;
+	update_pkt.num_updates = routing_table.size();
+	update_pkt.source_port = this_router.router_port;
+	update_pkt.source_ip = this_router.ip;
+
+	for(int i = 0; i < routing_table.size(); i++) {
+		struct routing_update routing_update;
+		routing_update.ip = id_to_ip(routing_table[i].destination_id);
+		routing_update.port = id_to_router_port(routing_table[i].destination_id);
+		routing_update.padding = 0;
+		routing_update.id = routing_table[i].destination_id;
+		routing_update.cost = routing_table[i].cost;
+		update_pkt.updates.push_back(routing_update);
+	}
+
+	return to_vector(update_pkt);
 }
