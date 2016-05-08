@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-08 02:00:42
+* @Last Modified time: 2016-05-08 02:03:22
 */
 
 #include "../include/controller.h"
@@ -112,8 +112,6 @@ void Controller::process_routing_update() {
     }
 
     struct routing_update_pkt update_pkt;
-
-    memcpy(&update_pkt, &routing_update, sizeof(routing_update));
 
     DEBUG("Received routing updates");
     DEBUG(routing_update[0]);
