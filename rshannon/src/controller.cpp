@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-07 22:12:39
+* @Last Modified time: 2016-05-07 22:47:21
 */
 
 #include "../include/controller.h"
@@ -80,6 +80,8 @@ void Controller::start(string control_port) {
         // Process any incoming routing updates
         process_routing_update();
 
+        sleep(3);
+
         // Broadcast distance vector updates to neighbors
         broadcast_routing_updates();
     }
@@ -106,6 +108,7 @@ void Controller::process_routing_update() {
     if(routing_update.empty()) {
         return;
     }
+    DEBUG("received routing update from");
 }
 
 void Controller::process_control_msg() {

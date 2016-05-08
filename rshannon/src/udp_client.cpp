@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-07 22:17:06
+* @Last Modified time: 2016-05-07 22:40:45
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -74,7 +74,7 @@ void UDPClient::send_data(uint32_t ip, uint16_t port, int nbytes, char buf[]) {
         return;
     }
 
-    if ((numbytes = sendto(sockfd, buf, nbytes, 0,
+    if ((numbytes = sendto(sockfd, buf, nbytes, MSG_DONTWAIT,
              p->ai_addr, p->ai_addrlen)) == -1) {
         DEBUG("udp client: sendto");
         exit(1);
