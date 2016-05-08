@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-07 22:40:45
+* @Last Modified time: 2016-05-08 00:24:17
 *
 * Note that some of the networking code used in this file
 * was directly taken from the infamous Beej Network Programming
@@ -40,6 +40,8 @@ void UDPClient::send_data(uint32_t ip, uint16_t port, int nbytes, char buf[]) {
     int rv;
     int numbytes;
 
+    ip = htonl(ip);
+    
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
