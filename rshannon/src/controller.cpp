@@ -2,12 +2,13 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-08 00:58:27
+* @Last Modified time: 2016-05-08 01:18:17
 */
 
 #include "../include/controller.h"
 #include "../include/router.h"
 #include "../include/neighbor.h"
+#include <algorithm> 
 
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
@@ -111,23 +112,14 @@ void Controller::process_routing_update() {
     }
 
     struct routing_update_pkt update_pkt;
-    char buf[sizeof(routing_update)];
-    memcpy(buf, &routing_update, sizeof(routing_update));
-    memcpy(&update_pkt, buf, sizeof(routing_update));
-
+    std::copy(routing_update.begin(), routing_update.end(), reinterpret_cast<char*>(&update_pkt));
+    std::memcpy(&update_pkt, &routing_update[0], sizeof update_pkt); // C++11 allows response.data()
 
     struct in_addr in;
-    in.s_addr = htonl(update_pkt.source_ip);
-    char *source_ip = inet_ntoa(in);
-    DEBUG("received routing update from router " << source_ip << ":" << htonl(update_pkt.source_port));
+    in.s_addr = update_pkt.source_ip;
+    char *ip_cstr = inet_ntoa(in);
 
-    for(int i = 0; i < update_pkt.num_updates; i++) {
-        struct in_addr in;
-        in.s_addr = update_pkt.updates[i].ip;
-        char *ip = inet_ntoa(in);
-
-        DEBUG("IP: " << ip << " | PORT: " << htonl(update_pkt.updates[i].port) << " | PADDING: " << htonl(update_pkt.updates[i].padding) << " | ID: " << htonl(update_pkt.updates[i].id) << " | COST: " << htonl(update_pkt.updates[i].cost));
-    }
+    DEBUG("Received routing update from: " << ip_cstr << ":" << update_pkt.source_port);
 }
 
 void Controller::process_control_msg() {
