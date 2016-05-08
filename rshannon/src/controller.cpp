@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-08 01:57:47
+* @Last Modified time: 2016-05-08 02:00:42
 */
 
 #include "../include/controller.h"
@@ -115,9 +115,11 @@ void Controller::process_routing_update() {
 
     memcpy(&update_pkt, &routing_update, sizeof(routing_update));
 
-    DEBUG("Received" << update_pkt.num_updates << " routing updates");
-    DEBUG(update_pkt.source_ip);
-    DEBUG(update_pkt.source_port);
+    DEBUG("Received routing updates");
+    DEBUG(routing_update[0]);
+    DEBUG(routing_update[1]);
+    DEBUG(routing_update[2]);
+    DEBUG(routing_update[3]);
 }
 
 void Controller::process_control_msg() {
