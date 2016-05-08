@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-08 00:51:45
+* @Last Modified time: 2016-05-08 00:58:27
 */
 
 #include "../include/controller.h"
@@ -117,16 +117,16 @@ void Controller::process_routing_update() {
 
 
     struct in_addr in;
-    in.s_addr = update_pkt.source_ip;
+    in.s_addr = htonl(update_pkt.source_ip);
     char *source_ip = inet_ntoa(in);
-    DEBUG("received routing update from router " << source_ip << ":" << update_pkt.source_port);
+    DEBUG("received routing update from router " << source_ip << ":" << htonl(update_pkt.source_port));
 
     for(int i = 0; i < update_pkt.num_updates; i++) {
         struct in_addr in;
         in.s_addr = update_pkt.updates[i].ip;
         char *ip = inet_ntoa(in);
 
-        DEBUG("IP: " << ip << " | PORT: " << update_pkt.updates[i].port << " | PADDING: " << update_pkt.updates[i].padding << " | ID: " << update_pkt.updates[i].id << " | COST: " << update_pkt.updates[i].cost);
+        DEBUG("IP: " << ip << " | PORT: " << htonl(update_pkt.updates[i].port) << " | PADDING: " << htonl(update_pkt.updates[i].padding) << " | ID: " << htonl(update_pkt.updates[i].id) << " | COST: " << htonl(update_pkt.updates[i].cost));
     }
 }
 
