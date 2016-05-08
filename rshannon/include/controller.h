@@ -12,6 +12,7 @@
 #include "../include/response.h"
 #include "../include/tcp_server.h"
 #include "../include/udp_server.h"
+#include "../include/udp_client.h"
 #include "../include/error.h"
 
 using std::vector;
@@ -28,8 +29,10 @@ private:
     Data data;
     UDPServer updates_server;
     TCPServer control_server;
+    UDPClient udp_client;
     void process_routing_update();
     void process_control_msg();
+    void broadcast_routing_updates();
 public:
 	Controller();
 	~Controller();

@@ -2,7 +2,7 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:26:31
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-07 21:28:14
+* @Last Modified time: 2016-05-07 22:12:31
 */
 #include "../include/router.h"
 #include "../include/error.h"
@@ -155,4 +155,18 @@ vector<char> Router::get_routing_update() {
 	}
 
 	return to_vector(update_pkt);
+}
+
+vector<struct neighbor> Router::get_neighbors() {
+	vector<struct neighbor> neighbors;
+	for(int i = 0; i < routers.size(); i++) {
+		if(routers[i].cost != INF) { 
+			struct neighbor neighbor;
+			neighbor.ip = routers[i].ip;
+			neighbor.router_port = routers[i].router_port;
+			neighbor.data_port = routers[i].data_port;
+			neighbors.push_back(neighbor);
+		}
+	}
+	return neighbors;
 }

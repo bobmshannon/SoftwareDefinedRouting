@@ -8,6 +8,7 @@
 #define INF 65535
 
 #include "../include/routing_table.h"
+#include "../include/neighbor.h"
 
 using std::vector;
 using std::string;
@@ -109,6 +110,11 @@ public:
 	 * Generate a routing update packet
 	 */
 	vector<char> get_routing_update();
+
+	/**
+	 * Retrieve a list of IP addresses for each neighbor router
+	 */
+	vector<struct neighbor> get_neighbors();
 };
 
 #endif

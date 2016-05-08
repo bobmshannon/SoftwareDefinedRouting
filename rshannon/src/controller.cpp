@@ -2,10 +2,11 @@
 * @Author: Robert Shannon <rshannon@buffalo.edu>
 * @Date:   2016-02-05 21:41:26
 * @Last Modified by:   Bobby
-* @Last Modified time: 2016-05-05 23:21:10
+* @Last Modified time: 2016-05-07 22:12:39
 */
 
 #include "../include/controller.h"
+#include "../include/neighbor.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 // PRIVATE
@@ -78,6 +79,17 @@ void Controller::start(string control_port) {
 
         // Process any incoming routing updates
         process_routing_update();
+
+        // Broadcast distance vector updates to neighbors
+        broadcast_routing_updates();
+    }
+}
+
+void Controller::broadcast_routing_updates() {
+    vector<char> update_pkt = router.get_routing_update();
+    vector<struct neighbor> neighbors = router.get_neighbors();
+    for(int i = 0; i < neighbors.size(); i++) {
+        udp_client.send_message(neighbors[i].ip, neighbors[i].router_port, update_pkt);
     }
 }
 
@@ -157,8 +169,6 @@ void Controller::process_control_msg() {
             break;
     }
 }
-
-
 
 vector<char> Controller::generate_response(vector<char> msg) {
     uint8_t control_code = extract_control_code(msg);
